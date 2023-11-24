@@ -1,4 +1,4 @@
-package sender;
+package transmitter;
 
 public class Transmitter {
 

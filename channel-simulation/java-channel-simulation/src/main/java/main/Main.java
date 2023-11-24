@@ -1,8 +1,8 @@
 package main;
 
 import org.jfree.data.xy.XYDataItem;
-import sender.ASKModulator;
-import sender.GIFDecoder;
+import transmitter.ASKModulator;
+import transmitter.GIFDecoder;
 
 public class Main {
     public static void main(String[] args) {

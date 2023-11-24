@@ -1,4 +1,4 @@
-package sender;
+package transmitter;
 
 public abstract class Modulator {
 
