@@ -3,6 +3,7 @@ package main;
 import org.jfree.data.xy.XYDataItem;
 import transmitter.ASKModulator;
 import transmitter.GIFDecoder;
+import transmitter.RandomStream;
 
 public class Main {
     public static void main(String[] args) {
@@ -10,7 +11,7 @@ public class Main {
         int sampleFrequency = 1000;
 
         XYDataItem[] data = new XYDataItem[sampleFrequency * samplePeriod];
-        ASKModulator modulator = new ASKModulator(0.8, 1, 5, 1, new GIFDecoder());
+        ASKModulator modulator = new ASKModulator(0.8, 1, 5, 1, new RandomStream());
 
         double time = 0;
         for (int i = 0; i < data.length; i++) {
