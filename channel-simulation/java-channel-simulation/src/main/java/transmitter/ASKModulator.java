@@ -31,6 +31,11 @@ public class ASKModulator extends Modulator {
         return f;
     }
 
+    @Override
+    public double getRMS() {
+        return 0.707 * amplitude;
+    }
+
     public ASKModulator(double depth, double amplitude, double carrierF, double modulationF, Datastream datastream) {
         super(datastream);
         this.depth = depth;

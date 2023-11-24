@@ -1,8 +1,8 @@
 package main;
 
+import channel.Channel;
 import org.jfree.data.xy.XYDataItem;
 import transmitter.ASKModulator;
-import transmitter.GIFDecoder;
 import transmitter.RandomStream;
 
 public class Main {
@@ -12,10 +12,13 @@ public class Main {
 
         XYDataItem[] data = new XYDataItem[sampleFrequency * samplePeriod];
         ASKModulator modulator = new ASKModulator(0.8, 1, 5, 1, new RandomStream());
+        Channel channel = new Channel(modulator.getRMS(), 20);
 
         double time = 0;
         for (int i = 0; i < data.length; i++) {
-            data[i] = new XYDataItem(time, modulator.output(time));
+            double f = modulator.output(time);
+            f = channel.output(f);
+            data[i] = new XYDataItem(time, f);
             time += (double) samplePeriod / data.length;
         }
 
