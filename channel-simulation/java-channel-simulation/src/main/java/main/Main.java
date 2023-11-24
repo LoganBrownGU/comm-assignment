@@ -12,7 +12,7 @@ public class Main {
 
         XYDataItem[] data = new XYDataItem[sampleFrequency * samplePeriod];
         ASKModulator modulator = new ASKModulator(0.8, 1, 5, 1, new RandomStream());
-        Channel channel = new Channel(modulator.getRMS(), 20);
+        Channel channel = new Channel(modulator.getRMS(), 24);
 
         double time = 0;
         for (int i = 0; i < data.length; i++) {

@@ -7,6 +7,8 @@ public class RandomStream implements Datastream {
     Random rd = new Random();
     @Override
     public byte nextByte() {
-        return (byte) rd.nextInt();
+        byte b = (byte) rd.nextInt();
+        System.out.print(b + " ");
+        return b;
     }
 }

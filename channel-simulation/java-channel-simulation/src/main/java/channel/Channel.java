@@ -1,6 +1,6 @@
 package channel;
 
-import transmitter.Filter;
+import main.Filter;
 
 import java.util.Random;
 

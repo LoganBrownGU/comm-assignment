@@ -1,5 +1,7 @@
 package transmitter;
 
+import main.Filter;
+
 public class Transmitter {
 
     private Modulator modulator;

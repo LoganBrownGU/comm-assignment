@@ -1,4 +1,4 @@
-package transmitter;
+package main;
 
 public class Filter {
     private double fLow, fHigh;
