@@ -6,7 +6,7 @@ import sender.GIFDecoder;
 
 public class Main {
     public static void main(String[] args) {
-        int samplePeriod = 4;
+        int samplePeriod = 8;
         int sampleFrequency = 1000;
 
         XYDataItem[] data = new XYDataItem[sampleFrequency * samplePeriod];
