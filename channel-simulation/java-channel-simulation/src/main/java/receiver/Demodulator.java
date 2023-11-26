@@ -8,7 +8,22 @@ public abstract class Demodulator {
 
     protected void notifyObservers() {
         for (Observer o : observers)
-            o.notifyObserver();
+            o.notifyThis(currentByte);
     }
+
+    public void addObserver(Observer observer) {
+        this.observers.add(observer);
+    }
+
     public abstract void receive(double f, double t);
+
+    public void updateByte(byte bitMask, boolean bit) {
+        if (bit) this.currentByte |= bitMask;
+        else {
+            byte invertMask = (byte) (currentByte & bitMask);
+            currentByte ^= invertMask;
+        }
+
+        if (bitMask == (byte) 0b10000000) notifyObservers();
+    }
 }

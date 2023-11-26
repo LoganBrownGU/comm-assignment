@@ -1,5 +1,5 @@
 package receiver;
 
 public interface Observer {
-    void notifyObserver();
+    void notifyThis(byte value);
 }

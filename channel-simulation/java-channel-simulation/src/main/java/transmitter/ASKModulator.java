@@ -4,27 +4,27 @@ public class ASKModulator extends Modulator {
 
     private final double depth, amplitude, carrierF, shiftPeriod;
     private byte currentByte;
-    private byte bitMask = 0b00000001;
+    private byte bitmask = 0b00000001;
     private int transitions;
 
     @Override
     public double output(double t) {
         // find the current bit frame that the system should be sending.
-        int frame = (int) Math.floor(t / shiftPeriod);
+        int frame = (int) Math.floor(t / this.shiftPeriod);
         // if the number of bit transitions does not match the current frame, then move to the
         // next bit.
-        if (transitions != frame) {
-            bitMask <<= 1;
-            transitions++;
+        if (this.transitions != frame) {
+            this.bitmask <<= 1;
+            this.transitions++;
         }
         // if the bitMask is 8 then reset it to 0 and request the next byte to be sent.
-        if (bitMask == 0) {
-            bitMask = 0b00000001;
-            currentByte = super.getDatastream().nextByte();
+        if (this.bitmask == 0) {
+            this.bitmask = 0b00000001;
+            this.currentByte = super.getDatastream().nextByte();
         }
 
-        boolean bit = (bitMask & currentByte) != 0;
-        double f = amplitude * Math.sin(2 * Math.PI * carrierF * t);
+        boolean bit = (this.bitmask & this.currentByte) != 0;
+        double f = this.amplitude * Math.sin(2 * Math.PI * this.carrierF * t);
 
         if (!bit) f *= 1 - depth;
 
