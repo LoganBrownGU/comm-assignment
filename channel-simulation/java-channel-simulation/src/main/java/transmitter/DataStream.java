@@ -1,5 +1,5 @@
 package transmitter;
 
-public interface Datastream {
+public interface DataStream {
     byte nextByte();
 }

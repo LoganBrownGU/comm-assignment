@@ -29,4 +29,6 @@ public class ASKDemodulator extends Demodulator {
         this.carrierF = carrierF;
         this.modulationPeriod = 1 / modulationF;
     }
+
+
 }

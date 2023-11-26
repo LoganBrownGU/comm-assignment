@@ -3,7 +3,8 @@ package receiver;
 import java.util.ArrayList;
 
 public abstract class Demodulator {
-    private ArrayList<Observer> observers = new ArrayList<>();
+    private final ArrayList<Observer> observers = new ArrayList<>();
+    private final ArrayList<Byte> receivedBytes = new ArrayList<>();
     private byte currentByte;
 
     protected void notifyObservers() {
@@ -24,7 +25,13 @@ public abstract class Demodulator {
             currentByte ^= invertMask;
         }
 
-        if (bitMask == (byte) 0b10000000)
+        if (bitMask == (byte) 0b10000000) {
             notifyObservers();
+            receivedBytes.add(currentByte);
+        }
+    }
+
+    public ArrayList<Byte> getReceivedBytes() {
+        return receivedBytes;
     }
 }

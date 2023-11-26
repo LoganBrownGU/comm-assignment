@@ -11,7 +11,7 @@ public class Receiver {
     private static class DataOut implements Observer {
         @Override
         public void notifyThis(byte value) {
-            System.out.println(value);
+
         }
     }
 
@@ -40,5 +40,9 @@ public class Receiver {
 
     public void setDemodulator(Demodulator demodulator) {
         this.demodulator = demodulator;
+    }
+
+    public Demodulator getDemodulator() {
+        return demodulator;
     }
 }

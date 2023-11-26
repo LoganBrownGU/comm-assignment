@@ -21,6 +21,7 @@ public class ASKModulator extends Modulator {
         if (this.bitmask == 0) {
             this.bitmask = 0b00000001;
             this.currentByte = super.getDatastream().nextByte();
+            super.addByte(this.currentByte);
         }
 
         boolean bit = (this.bitmask & this.currentByte) != 0;
@@ -36,7 +37,7 @@ public class ASKModulator extends Modulator {
         return 0.707 * amplitude;
     }
 
-    public ASKModulator(double depth, double amplitude, double carrierF, double modulationF, Datastream datastream) {
+    public ASKModulator(double depth, double amplitude, double carrierF, double modulationF, DataStream datastream) {
         super(datastream);
         this.depth = depth;
         this.amplitude = amplitude;
@@ -44,5 +45,11 @@ public class ASKModulator extends Modulator {
         this.shiftPeriod = 1 / modulationF;
 
         this.currentByte = datastream.nextByte();
+        super.addByte(this.currentByte);
+    }
+
+    // Only for use by simulation display
+    public byte peekByte() {
+        return this.currentByte;
     }
 }
