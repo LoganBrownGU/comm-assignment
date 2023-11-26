@@ -24,6 +24,7 @@ public abstract class Demodulator {
             currentByte ^= invertMask;
         }
 
-        if (bitMask == (byte) 0b10000000) notifyObservers();
+        if (bitMask == (byte) 0b10000000)
+            notifyObservers();
     }
 }

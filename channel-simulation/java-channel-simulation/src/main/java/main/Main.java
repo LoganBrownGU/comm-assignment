@@ -9,7 +9,7 @@ import transmitter.RandomStream;
 
 public class Main {
     public static void main(String[] args) {
-        int samplePeriod = 8;
+        int samplePeriod = 8 * 10;
         int sampleFrequency = 1000;
 
         double depth = .8, amplitude = 1, carrierF = 5, modulationF = 1;
