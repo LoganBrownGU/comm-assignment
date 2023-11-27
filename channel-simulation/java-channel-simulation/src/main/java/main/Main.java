@@ -4,10 +4,13 @@ import channel.Channel;
 import org.jfree.data.xy.XYDataItem;
 import receiver.ASKDemodulator;
 import receiver.DataOut;
+import receiver.Demodulator;
 import receiver.Receiver;
+import simulator.Simulator;
 import transmitter.ASKModulator;
 import transmitter.Modulator;
 import transmitter.RandomStream;
+import transmitter.Transmitter;
 
 import java.util.ArrayList;
 
@@ -72,12 +75,30 @@ public class Main {
         Plotter.plot("Bit error rate", "../assets/ber.png", "noise (dB)", "Bit error rate", new XYDataItem(1600, 900), data);
     }
 
-    public static void main(String[] args) {
+    public Main() throws InterruptedException {
         double noise = 24;
         double depth = .8, amplitude = 1, carrierF = 5, modulationF = 1;
         ASKModulator modulator = new ASKModulator(depth, amplitude, carrierF, modulationF, new RandomStream());
-        Channel channel = new Channel(new Filter(2, 7), modulator.getRMS(), noise);
+        Channel channel = new Channel(null, modulator.getRMS(), noise);
         Receiver receiver = new Receiver(new ASKDemodulator(depth, amplitude, carrierF, modulationF));
+
+        Simulator simulator = new Simulator(new Transmitter(modulator), receiver, channel, 0, 17, 0.01);
+
+        simulator.simulate();
+
+        new Thread(() -> {
+            while (!receiver.getDemodulator().getDataOut().isClosed()) {
+                try {
+                    System.out.println(receiver.getDemodulator().getDataOut().pop());
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).start();
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        new Main();
 
         //ber(1000, 100, modulator, channel, receiver);
     }

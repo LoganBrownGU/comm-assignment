@@ -7,7 +7,7 @@ public class Transmitter {
     private Modulator modulator;
     private Filter filter;
 
-    double send(double t) {
+    public double send(double t) {
         double f = modulator.output(t);
         if (filter != null) f = filter.output(f);
 

@@ -24,6 +24,7 @@ public class ASKDemodulator extends Demodulator {
     }
 
     public ASKDemodulator(double depth, double carrierAmp, double carrierF, double modulationF) {
+        super(new DataOut());
         this.depth = depth;
         this.amplitude = carrierAmp;
         this.carrierF = carrierF;
