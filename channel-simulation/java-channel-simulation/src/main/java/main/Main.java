@@ -74,11 +74,12 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        Filter filter = new Filter(3, 6);
+        Filter filter = new Filter(0, 3);
         ArrayList<XYDataItem> data = new ArrayList<>();
 
+
         for (double t = 0; t < 10; t += 0.001) {
-            double f = Math.sin(2 * Math.PI * 5 * t);
+            double f = Math.sin(2 * Math.PI * 5 * t) + Math.sin(2 * Math.PI * t);
             f = filter.output(f);
             data.add(new XYDataItem(t, f));
         }
