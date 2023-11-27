@@ -5,9 +5,9 @@ import java.util.ArrayList;
 public abstract class Modulator {
 
     private DataStream datastream;
-    private ArrayList<Byte> sentBytes = new ArrayList<>();
+    private final ArrayList<Byte> sentBytes = new ArrayList<>();
 
-    abstract double output(double t);
+    public abstract double output(double t);
     abstract double getRMS();
 
     public Modulator(DataStream datastream) {

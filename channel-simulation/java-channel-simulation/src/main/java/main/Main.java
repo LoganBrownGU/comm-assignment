@@ -3,12 +3,13 @@ package main;
 import channel.Channel;
 import org.jfree.data.xy.XYDataItem;
 import receiver.ASKDemodulator;
+import receiver.DataOut;
 import receiver.Receiver;
 import transmitter.ASKModulator;
+import transmitter.Modulator;
 import transmitter.RandomStream;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Main {
 
@@ -21,9 +22,10 @@ public class Main {
     *   that byte, since the while loop will continue until all the bits have been shifted out. ANDing the byte with 0x000000FF will set
     *   the first 24 bits to 0, and leave the final 8 untouched.
     */
-    private static int getBitErrors(ASKModulator modulator, Receiver receiver) {
+    private static double getBitErrorRate(Modulator modulator, Receiver receiver) {
         int bitErrors = 0;
-        for (int i = 0; i < receiver.getDemodulator().getReceivedBytes().size(); i++) {
+        int n = Math.min(receiver.getDemodulator().getReceivedBytes().size(), modulator.getSentBytes().size());
+        for (int i = 0; i < n; i++) {
             byte sentByte = modulator.getSentBytes().get(i);
             byte receivedByte = receiver.getDemodulator().getReceivedBytes().get(i);
 
@@ -33,40 +35,37 @@ public class Main {
                 error >>>= 1;
             }
         }
-        return bitErrors;
+        return (double) bitErrors / n;
     }
 
-    private static double simulate(double noise, int bytesToSend) {
-        int samplePeriod = 8 * bytesToSend;
-        int sampleFrequency = 100;
+    // [0] = modulator output
+    // [1] = channel output
+    private static XYDataItem[][] simulate(double sampleFrequency, double samplePeriod, Modulator modulator, Channel channel, Receiver receiver) {
 
-        double depth = .8, amplitude = 1, carrierF = 5, modulationF = 1;
-
-        XYDataItem[] data = new XYDataItem[sampleFrequency * samplePeriod];
-        ASKModulator modulator = new ASKModulator(depth, amplitude, carrierF, modulationF, new RandomStream());
-        Channel channel = new Channel(new Filter(2, 7), modulator.getRMS(), noise);
-        Receiver receiver = new Receiver(new ASKDemodulator(depth, amplitude, carrierF, modulationF));
+        XYDataItem[] modOut = new XYDataItem[(int) (sampleFrequency * samplePeriod)];
+        XYDataItem[] channelOut = new XYDataItem[(int) (sampleFrequency * samplePeriod)];
 
         double time = 0;
-        for (int i = 0; i < data.length; i++) {
+        for (int i = 0; i < modOut.length; i++) {
             double f = modulator.output(time);
+            modOut[i] = new XYDataItem(time, f);
             f = channel.output(f);
-            data[i] = new XYDataItem(time, f);
+            channelOut[i] = new XYDataItem(time, f);
             receiver.receive(f, time);
 
-            time += (double) samplePeriod / data.length;
+            time += samplePeriod / modOut.length;
         }
-        Plotter.plot("Channel", "../assets/channel.png", "t", "a", new XYDataItem(1600, 900), data);
-        receiver.receive(0, time + (double) samplePeriod / data.length);
+        receiver.receive(0, time + samplePeriod / modOut.length);
 
-        int bitErrors = getBitErrors(modulator, receiver);
-        return (double) bitErrors / (receiver.getDemodulator().getReceivedBytes().size() * 8);
+        return new XYDataItem[][]{modOut, channelOut};
     }
 
-    private void ber() {
+    private static void ber(double sampleFrequency, double samplePeriod, Modulator modulator, Channel channel, Receiver receiver) {
         ArrayList<XYDataItem> data = new ArrayList<>();
         for (double noise = 0; noise < 24; noise+=0.1) {
-            double ber = simulate(noise, 1024);
+            System.out.println(noise);
+            simulate(sampleFrequency, samplePeriod, modulator, channel, receiver);
+            double ber = getBitErrorRate(modulator, receiver);
             data.add(new XYDataItem(noise, ber));
         }
 
@@ -74,16 +73,12 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        Filter filter = new Filter(0, 3);
-        ArrayList<XYDataItem> data = new ArrayList<>();
+        double noise = 24;
+        double depth = .8, amplitude = 1, carrierF = 5, modulationF = 1;
+        ASKModulator modulator = new ASKModulator(depth, amplitude, carrierF, modulationF, new RandomStream());
+        Channel channel = new Channel(new Filter(2, 7), modulator.getRMS(), noise);
+        Receiver receiver = new Receiver(new ASKDemodulator(depth, amplitude, carrierF, modulationF));
 
-
-        for (double t = 0; t < 10; t += 0.001) {
-            double f = Math.sin(2 * Math.PI * 5 * t) + Math.sin(2 * Math.PI * t);
-            f = filter.output(f);
-            data.add(new XYDataItem(t, f));
-        }
-
-        Plotter.plot("Channel", "../assets/channel.png", "t", "a", new XYDataItem(1600, 900), data);
+        //ber(1000, 100, modulator, channel, receiver);
     }
 }
