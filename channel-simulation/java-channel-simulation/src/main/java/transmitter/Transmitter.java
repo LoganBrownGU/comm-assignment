@@ -9,7 +9,7 @@ public class Transmitter {
 
     double send(double t) {
         double f = modulator.output(t);
-        if (filter != null) f = filter.filter(f);
+        if (filter != null) f = filter.output(f);
 
         return f;
     }

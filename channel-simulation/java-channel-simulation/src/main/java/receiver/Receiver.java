@@ -16,7 +16,7 @@ public class Receiver {
     }
 
     public void receive(double f, double t) {
-        if (filter != null) f = filter.filter(f);
+        if (filter != null) f = filter.output(f);
         demodulator.receive(f, t);
     }
 

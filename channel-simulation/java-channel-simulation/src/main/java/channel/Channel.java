@@ -12,7 +12,7 @@ public class Channel {
     public double output(double f) {
         f += random.nextGaussian() * noiseRMS;
 
-        if (filter != null) return filter.filter(f);
+        if (filter != null) return filter.output(f);
         else return f;
     }
 

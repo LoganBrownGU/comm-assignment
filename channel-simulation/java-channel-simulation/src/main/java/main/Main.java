@@ -44,7 +44,7 @@ public class Main {
 
         XYDataItem[] data = new XYDataItem[sampleFrequency * samplePeriod];
         ASKModulator modulator = new ASKModulator(depth, amplitude, carrierF, modulationF, new RandomStream());
-        Channel channel = new Channel(modulator.getRMS(), noise);
+        Channel channel = new Channel(new Filter(2, 7), modulator.getRMS(), noise);
         Receiver receiver = new Receiver(new ASKDemodulator(depth, amplitude, carrierF, modulationF));
 
         double time = 0;
@@ -56,20 +56,33 @@ public class Main {
 
             time += (double) samplePeriod / data.length;
         }
+        Plotter.plot("Channel", "../assets/channel.png", "t", "a", new XYDataItem(1600, 900), data);
         receiver.receive(0, time + (double) samplePeriod / data.length);
 
         int bitErrors = getBitErrors(modulator, receiver);
         return (double) bitErrors / (receiver.getDemodulator().getReceivedBytes().size() * 8);
     }
 
-    public static void main(String[] args) {
+    private void ber() {
         ArrayList<XYDataItem> data = new ArrayList<>();
         for (double noise = 0; noise < 24; noise+=0.1) {
             double ber = simulate(noise, 1024);
             data.add(new XYDataItem(noise, ber));
         }
 
-
         Plotter.plot("Bit error rate", "../assets/ber.png", "noise (dB)", "Bit error rate", new XYDataItem(1600, 900), data);
+    }
+
+    public static void main(String[] args) {
+        Filter filter = new Filter(3, 6);
+        ArrayList<XYDataItem> data = new ArrayList<>();
+
+        for (double t = 0; t < 10; t += 0.001) {
+            double f = Math.sin(2 * Math.PI * 5 * t);
+            f = filter.output(f);
+            data.add(new XYDataItem(t, f));
+        }
+
+        Plotter.plot("Channel", "../assets/channel.png", "t", "a", new XYDataItem(1600, 900), data);
     }
 }
