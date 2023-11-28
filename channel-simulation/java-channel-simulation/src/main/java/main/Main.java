@@ -75,7 +75,7 @@ public class Main {
         Plotter.plot("Bit error rate", "../assets/ber.png", "noise (dB)", "Bit error rate", new XYDataItem(1600, 900), data);
     }
 
-    public Main() throws InterruptedException {
+    public static void main(String[] args) {
         double noise = 24;
         double depth = .8, amplitude = 1, carrierF = 5, modulationF = 1;
         ASKModulator modulator = new ASKModulator(depth, amplitude, carrierF, modulationF, new RandomStream());
@@ -83,8 +83,6 @@ public class Main {
         Receiver receiver = new Receiver(new ASKDemodulator(depth, amplitude, carrierF, modulationF));
 
         Simulator simulator = new Simulator(new Transmitter(modulator), receiver, channel, 0, 17, 0.01);
-
-        simulator.simulate();
 
         new Thread(() -> {
             while (!receiver.getDemodulator().getDataOut().isClosed()) {
@@ -95,11 +93,11 @@ public class Main {
                 }
             }
         }).start();
-    }
 
-    public static void main(String[] args) throws InterruptedException {
-        new Main();
-
-        //ber(1000, 100, modulator, channel, receiver);
+        try {
+            simulator.simulate();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

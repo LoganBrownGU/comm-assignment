@@ -10,19 +10,24 @@ public class DataOut {
     public void push(byte b) {
         synchronized (mutex) {
             this.buffer.add(b);
-            mutex.notify();
+            mutex.notifyAll();
         }
     }
 
     public byte pop() throws InterruptedException {
         synchronized (mutex) {
-            while (this.buffer.isEmpty()) mutex.wait();
-            return this.buffer.remove(0);
+            while (this.buffer.isEmpty() && !closed) mutex.wait();
+
+            if (closed) return 0;
+            else        return this.buffer.remove(0);
         }
     }
 
     public void close() {
         this.closed = true;
+        synchronized (mutex) {
+            mutex.notifyAll();
+        }
     }
 
     public boolean isClosed() {

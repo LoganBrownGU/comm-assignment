@@ -28,7 +28,7 @@ public class Simulator {
             Thread.sleep(deltaT / 1_000_000, (int) (sleepTime - deltaT) % 1_000_000);
         }
 
-        //receiver.getDemodulator().getDataOut().close();
+        receiver.getDemodulator().getDataOut().close();
     }
 
     public Simulator(Transmitter transmitter, Receiver receiver, Channel channel, double startTime, double endTime, double timeStep) {
