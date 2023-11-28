@@ -3,8 +3,6 @@ package main;
 import channel.Channel;
 import org.jfree.data.xy.XYDataItem;
 import receiver.ASKDemodulator;
-import receiver.DataOut;
-import receiver.Demodulator;
 import receiver.Receiver;
 import simulator.Simulator;
 import transmitter.ASKModulator;
@@ -15,6 +13,19 @@ import transmitter.Transmitter;
 import java.util.ArrayList;
 
 public class Main {
+
+    public static void byteListToString(ArrayList<Byte> bytes) {
+        for (byte b : bytes) {
+            String str = Integer.toBinaryString(b);
+            if (str.length() > 8) {
+                System.out.print(str.substring(24) + " ");
+            } else {
+                for (int i = 8; i > str.length(); i--) System.out.print("0");
+                System.out.print(str + " ");
+            }
+        }
+        System.out.println();
+    }
 
     /*
     * EXPLANATION OF THE FOLLOWING BIT OPERATIONS:
@@ -76,15 +87,15 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        double noise = 24;
-        double depth = .8, amplitude = 1, carrierF = 5, modulationF = 1;
+        double noise = 100;
+        double depth = .8, amplitude = 1, carrierF = 20, modulationF = 5;
         ASKModulator modulator = new ASKModulator(depth, amplitude, carrierF, modulationF, new RandomStream());
         Channel channel = new Channel(null, modulator.getRMS(), noise);
         Receiver receiver = new Receiver(new ASKDemodulator(depth, amplitude, carrierF, modulationF));
 
-        Simulator simulator = new Simulator(new Transmitter(modulator), receiver, channel, 0, 17, 0.01);
+        Simulator simulator = new Simulator(new Transmitter(modulator), receiver, channel, 0, 10, 0.001, false);
 
-        new Thread(() -> {
+        Thread t1 = new Thread(() -> {
             while (!receiver.getDemodulator().getDataOut().isClosed()) {
                 try {
                     System.out.println(receiver.getDemodulator().getDataOut().pop());
@@ -92,12 +103,18 @@ public class Main {
                     throw new RuntimeException(e);
                 }
             }
-        }).start();
+        });
+        t1.start();
 
         try {
             simulator.simulate();
+            t1.join();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+
+        byteListToString(modulator.getSentBytes());
+        byteListToString(receiver.getDemodulator().getReceivedBytes());
+        System.out.println("error rate: " + getBitErrorRate(modulator, receiver));
     }
 }
