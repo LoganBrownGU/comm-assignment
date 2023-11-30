@@ -33,6 +33,26 @@ public class Plotter {
         }
     }
 
+    public static void plot(String plotName, String path, String xLabel, String yLabel, XYDataItem dimensions, XYDataItem[][] points) {
+        System.out.println("plotting...");
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        for (XYDataItem[] arr : points) {
+            XYSeries series = new XYSeries("");
+            for (XYDataItem p : arr)
+                series.add(p);
+            dataset.addSeries(series);
+        }
+
+        JFreeChart chart = ChartFactory.createXYLineChart(plotName, xLabel, yLabel, dataset, PlotOrientation.VERTICAL, true, true, false);
+
+        try {
+            ChartUtilities.saveChartAsPNG(new File(path), chart, dimensions.getX().intValue(), dimensions.getY().intValue());
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+    }
+
     public static void plot(String plotName, String path, String xLabel, String yLabel, XYDataItem dimensions, ArrayList<XYDataItem> points) {
         XYDataItem[] pointsArray = new XYDataItem[points.size()];
         for (int i = 0; i < pointsArray.length; i++)

@@ -38,8 +38,13 @@ public class Simulator {
             Thread.sleep(deltaT / 1_000_000, (int) (sleepTime - deltaT) % 1_000_000);
         }
 
-        Plotter.plot("Transmitter", "../assets/transmitter.png", "a", "t", new XYDataItem(1600, 900), transmitterOut);
-        Plotter.plot("Channel", "../assets/channel.png", "a", "t", new XYDataItem(1600, 900), channelOut);
+
+        XYDataItem[] transmitterArr = new XYDataItem[transmitterOut.size()];
+        for (int i = 0; i < transmitterArr.length; i++) transmitterArr[i] = transmitterOut.get(i);
+        XYDataItem[] channelArr = new XYDataItem[channelOut.size()];
+        for (int i = 0; i < channelArr.length; i++) channelArr[i] = channelOut.get(i);
+
+        Plotter.plot("Transmitter", "../assets/transmitter.png", "a", "t", new XYDataItem(1600, 900), new XYDataItem[][] {transmitterArr, channelArr});
 
         receiver.getDemodulator().getDataOut().close();
     }
