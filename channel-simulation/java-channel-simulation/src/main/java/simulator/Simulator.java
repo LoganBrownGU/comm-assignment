@@ -1,6 +1,7 @@
 package simulator;
 
 import channel.Channel;
+import display.Display;
 import main.Plotter;
 import org.jfree.data.xy.XYDataItem;
 import receiver.Receiver;
@@ -15,6 +16,7 @@ public class Simulator {
     private Receiver receiver;
     private Channel channel;
     private final boolean realtime;
+    private final Display display;
 
     public void simulate() throws InterruptedException {
         // convert timeStep (s) into nanoseconds
@@ -39,6 +41,10 @@ public class Simulator {
             } catch (IllegalArgumentException e) {
                 System.out.println("exceeded timestep");
             }
+
+            if (this.display == null) continue;
+
+            this.display.update(transmitterOut.get(channelOut.size() - 1).getY().doubleValue(), channelOut.get(channelOut.size() - 1).getY().doubleValue(), this.timeStep);
         }
 
 
@@ -49,7 +55,8 @@ public class Simulator {
 
         Plotter.plot("Transmitter", "../assets/transmitter.png", "a", "t", new XYDataItem(1600, 900), new XYDataItem[][] {transmitterArr, channelArr});
 
-        receiver.getDemodulator().getDataOut().close();
+        this.receiver.getDemodulator().getDataOut().close();
+        if (this.display != null) this.display.dispose();
     }
 
     public Simulator(Transmitter transmitter, Receiver receiver, Channel channel, double startTime, double endTime, double timeStep, boolean realtime) {
@@ -60,6 +67,18 @@ public class Simulator {
         this.endTime = endTime;
         this.timeStep = timeStep;
         this.realtime = realtime;
+        this.display = null;
+    }
+
+    public Simulator(Transmitter transmitter, Receiver receiver, Channel channel, double startTime, double endTime, double timeStep, Display display) {
+        this.transmitter = transmitter;
+        this.receiver = receiver;
+        this.channel = channel;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.timeStep = timeStep;
+        this.realtime = true;
+        this.display = display;
     }
 
     public void setTransmitter(Transmitter transmitter) {
@@ -72,5 +91,9 @@ public class Simulator {
 
     public void setChannel(Channel channel) {
         this.channel = channel;
+    }
+
+    public double getTimeStep() {
+        return timeStep;
     }
 }

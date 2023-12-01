@@ -1,6 +1,7 @@
 package main;
 
 import channel.Channel;
+import display.Display;
 import org.jfree.data.xy.XYDataItem;
 import receiver.ASKDemodulator;
 import receiver.Receiver;
@@ -52,40 +53,6 @@ public class Main {
         return (double) bitErrors / (n * 8);
     }
 
-    // [0] = modulator output
-    // [1] = channel output
-    private static XYDataItem[][] simulate(double sampleFrequency, double samplePeriod, Modulator modulator, Channel channel, Receiver receiver) {
-
-        XYDataItem[] modOut = new XYDataItem[(int) (sampleFrequency * samplePeriod)];
-        XYDataItem[] channelOut = new XYDataItem[(int) (sampleFrequency * samplePeriod)];
-
-        double time = 0;
-        for (int i = 0; i < modOut.length; i++) {
-            double f = modulator.output(time);
-            modOut[i] = new XYDataItem(time, f);
-            f = channel.output(f);
-            channelOut[i] = new XYDataItem(time, f);
-            receiver.receive(f, time);
-
-            time += samplePeriod / modOut.length;
-        }
-        receiver.receive(0, time + samplePeriod / modOut.length);
-
-        return new XYDataItem[][]{modOut, channelOut};
-    }
-
-    private static void ber(double sampleFrequency, double samplePeriod, Modulator modulator, Channel channel, Receiver receiver) {
-        ArrayList<XYDataItem> data = new ArrayList<>();
-        for (double noise = 0; noise < 24; noise+=0.1) {
-            System.out.println(noise);
-            simulate(sampleFrequency, samplePeriod, modulator, channel, receiver);
-            double ber = getBitErrorRate(modulator, receiver);
-            data.add(new XYDataItem(noise, ber));
-        }
-
-        Plotter.plot("Bit error rate", "../assets/ber.png", "noise (dB)", "Bit error rate", new XYDataItem(1600, 900), data);
-    }
-
     public static void main(String[] args) {
         double noise = 24;
         double depth = .8, amplitude = 1, carrierF = 15, modulationF = 7;
@@ -94,6 +61,7 @@ public class Main {
         Receiver receiver = new Receiver(new ASKDemodulator(depth, amplitude, carrierF, modulationF));
 
         Simulator simulator = new Simulator(new Transmitter(modulator), receiver, channel, 0, 10, 0.001, true);
+        Display display = new Display("Simulator");
 
         Thread t1 = new Thread(() -> {
             while (!receiver.getDemodulator().getDataOut().isClosed()) {
