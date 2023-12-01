@@ -28,14 +28,17 @@ public class Simulator {
             double f = transmitter.send(t);
             transmitterOut.add(new XYDataItem(t, f));
             f = channel.output(f);
-            channelOut.add(new XYDataItem(t, f));
+            channelOut.add(new XYDataItem(t - timeStep * 1000, f));
             receiver.receive(f, t);
 
             if (!realtime) continue;
 
             deltaT = sleepTime - (System.nanoTime() - deltaT);
-            if (deltaT < 0) System.out.println(deltaT + " " + (System.nanoTime() - deltaT));
-            Thread.sleep(deltaT / 1_000_000, (int) (sleepTime - deltaT) % 1_000_000);
+            try {
+                Thread.sleep(deltaT / 1_000_000, (int) (sleepTime - deltaT) % 1_000_000);
+            } catch (IllegalArgumentException e) {
+                System.out.println("exceeded timestep");
+            }
         }
 
 

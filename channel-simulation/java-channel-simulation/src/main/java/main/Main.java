@@ -87,13 +87,13 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        double noise = 100;
+        double noise = 24;
         double depth = .8, amplitude = 1, carrierF = 15, modulationF = 7;
         ASKModulator modulator = new ASKModulator(depth, amplitude, carrierF, modulationF, new RandomStream());
         Channel channel = new Channel(new Filter(0, 30), modulator.getRMS(), noise);
         Receiver receiver = new Receiver(new ASKDemodulator(depth, amplitude, carrierF, modulationF));
 
-        Simulator simulator = new Simulator(new Transmitter(modulator), receiver, channel, 0, 10, 0.001, false);
+        Simulator simulator = new Simulator(new Transmitter(modulator), receiver, channel, 0, 10, 0.001, true);
 
         Thread t1 = new Thread(() -> {
             while (!receiver.getDemodulator().getDataOut().isClosed()) {
