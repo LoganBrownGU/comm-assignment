@@ -60,7 +60,7 @@ public class Main {
         Channel channel = new Channel(new Filter(0, 30), modulator.getRMS(), noise);
         Receiver receiver = new Receiver(new ASKDemodulator(depth, amplitude, carrierF, modulationF));
 
-        Simulator simulator = new Simulator(new Transmitter(modulator), receiver, channel, 0, 10, 0.001, new Display("Simulator"));
+        Simulator simulator = new Simulator(new Transmitter(modulator), receiver, channel, 0, 5, 0.001, new Display("Simulator"));
 
         Thread t1 = new Thread(() -> {
             while (!receiver.getDemodulator().getDataOut().isClosed()) {

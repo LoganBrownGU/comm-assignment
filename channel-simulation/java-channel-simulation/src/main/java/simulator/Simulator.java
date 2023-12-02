@@ -45,6 +45,7 @@ public class Simulator {
             }
 
             if (this.display == null) continue;
+            if (this.display.isFinished()) break;
             this.display.update(transmitterOut.get(transmitterOut.size() - 1).getY().doubleValue(), channelOut.get(channelOut.size() - 1).getY().doubleValue(), byteIn, byteOut, this.timeStep);
         }
 
@@ -57,6 +58,13 @@ public class Simulator {
         Plotter.plot("Transmitter", "../assets/transmitter.png", "a", "t", new XYDataItem(1600, 900), new XYDataItem[][] {transmitterArr, channelArr});
 
         this.receiver.getDemodulator().getDataOut().close();
+
+        if (this.display == null) return;
+        System.out.println("waiting for display to be closed...");
+        synchronized (this.display) {
+            while (!this.display.isFinished()) this.display.wait();
+        }
+        this.display.dispose();
     }
 
     public Simulator(Transmitter transmitter, Receiver receiver, Channel channel, double startTime, double endTime, double timeStep, boolean realtime) {
