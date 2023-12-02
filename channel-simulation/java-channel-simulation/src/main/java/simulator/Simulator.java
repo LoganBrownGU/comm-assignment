@@ -43,8 +43,7 @@ public class Simulator {
             }
 
             if (this.display == null) continue;
-
-            this.display.update(transmitterOut.get(channelOut.size() - 1).getY().doubleValue(), channelOut.get(channelOut.size() - 1).getY().doubleValue(), this.timeStep);
+            this.display.update(transmitterOut.get(transmitterOut.size() - 1).getY().doubleValue(), channelOut.get(channelOut.size() - 1).getY().doubleValue(), this.timeStep);
         }
 
 
@@ -79,6 +78,7 @@ public class Simulator {
         this.timeStep = timeStep;
         this.realtime = true;
         this.display = display;
+        this.display.run();
     }
 
     public void setTransmitter(Transmitter transmitter) {
