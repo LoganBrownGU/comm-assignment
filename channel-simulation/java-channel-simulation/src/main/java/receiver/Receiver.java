@@ -33,4 +33,9 @@ public class Receiver {
     public Demodulator getDemodulator() {
         return demodulator;
     }
+
+    public byte getCurrentByte() {
+        if (this.getDemodulator().getReceivedBytes().isEmpty()) return (byte) 0xFF;
+        else return this.demodulator.getReceivedBytes().get(this.demodulator.getReceivedBytes().size() - 1);
+    }
 }

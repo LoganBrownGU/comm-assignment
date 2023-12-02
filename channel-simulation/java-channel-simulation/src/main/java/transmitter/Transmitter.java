@@ -30,4 +30,9 @@ public class Transmitter {
     public void setFilter(Filter filter) {
         this.filter = filter;
     }
+
+    public byte getCurrentByte() {
+        if (this.modulator.getSentBytes().isEmpty()) return (byte) 0xFF;
+        else return this.modulator.getSentBytes().get(this.modulator.getSentBytes().size() - 1);
+    }
 }

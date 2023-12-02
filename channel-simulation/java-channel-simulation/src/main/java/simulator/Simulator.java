@@ -28,10 +28,12 @@ public class Simulator {
             long deltaT = System.nanoTime();
 
             double f = transmitter.send(t);
+            byte byteIn = this.transmitter.getCurrentByte();
             transmitterOut.add(new XYDataItem(t, f));
             f = channel.output(f);
             channelOut.add(new XYDataItem(t - timeStep * 1000, f));
             receiver.receive(f, t);
+            byte byteOut = receiver.getCurrentByte();
 
             if (!realtime) continue;
 
@@ -43,7 +45,7 @@ public class Simulator {
             }
 
             if (this.display == null) continue;
-            this.display.update(transmitterOut.get(transmitterOut.size() - 1).getY().doubleValue(), channelOut.get(channelOut.size() - 1).getY().doubleValue(), this.timeStep);
+            this.display.update(transmitterOut.get(transmitterOut.size() - 1).getY().doubleValue(), channelOut.get(channelOut.size() - 1).getY().doubleValue(), byteIn, byteOut, this.timeStep);
         }
 
 
