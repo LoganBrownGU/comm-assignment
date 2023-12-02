@@ -20,22 +20,22 @@ public class Simulator {
 
     public void simulate() throws InterruptedException {
         // convert timeStep (s) into nanoseconds
-        long sleepTime = (long) (timeStep * 1_000_000_000);
+        long sleepTime = (long) (this.timeStep * 1_000_000_000);
         ArrayList<XYDataItem> transmitterOut = new ArrayList<>();
         ArrayList<XYDataItem> channelOut = new ArrayList<>();
 
-        for (double t = startTime; t < endTime; t += timeStep) {
+        for (double t = this.startTime; t < this.endTime; t += this.timeStep) {
             long deltaT = System.nanoTime();
 
-            double f = transmitter.send(t);
+            double f = this.transmitter.send(t);
             byte byteIn = this.transmitter.getCurrentByte();
             transmitterOut.add(new XYDataItem(t, f));
-            f = channel.output(f);
-            channelOut.add(new XYDataItem(t - timeStep * 1000, f));
-            receiver.receive(f, t);
-            byte byteOut = receiver.getCurrentByte();
+            f = this.channel.output(f);
+            channelOut.add(new XYDataItem(t - this.timeStep * 1000, f));
+            this.receiver.receive(f, t);
+            byte byteOut = this.receiver.getCurrentByte();
 
-            if (!realtime) continue;
+            if (!this.realtime) continue;
 
             deltaT = sleepTime - (System.nanoTime() - deltaT);
             try {
@@ -57,7 +57,6 @@ public class Simulator {
         Plotter.plot("Transmitter", "../assets/transmitter.png", "a", "t", new XYDataItem(1600, 900), new XYDataItem[][] {transmitterArr, channelArr});
 
         this.receiver.getDemodulator().getDataOut().close();
-        if (this.display != null) this.display.dispose();
     }
 
     public Simulator(Transmitter transmitter, Receiver receiver, Channel channel, double startTime, double endTime, double timeStep, boolean realtime) {
@@ -96,6 +95,6 @@ public class Simulator {
     }
 
     public double getTimeStep() {
-        return timeStep;
+        return this.timeStep;
     }
 }
