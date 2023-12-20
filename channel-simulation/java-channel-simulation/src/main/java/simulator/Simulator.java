@@ -3,7 +3,6 @@ package simulator;
 import channel.Channel;
 import display.Display;
 import org.jfree.data.xy.XYDataItem;
-import org.jfree.data.xy.XYSeries;
 import receiver.Receiver;
 import transmitter.Transmitter;
 import util.Plotter;

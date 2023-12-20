@@ -1,10 +1,8 @@
 package main;
 
-import org.jfree.data.xy.XYDataItem;
 import org.jtransforms.fft.DoubleFFT_1D;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Filter {
     private final int fLow, fHigh;
@@ -31,16 +29,17 @@ public class Filter {
 
     public ArrayList<Double> calculate(ArrayList<Double> samples) {
         // turn into array
-        double[] fft = new double[samples.size()];
+        double[] fft = new double[samples.size() * 2];
         for (int i = 0; i < samples.size(); i++) fft[i] = samples.get(i);
 
-        DoubleFFT_1D fft1D = new DoubleFFT_1D(fft.length);
+        DoubleFFT_1D fft1D = new DoubleFFT_1D(samples.size());
         fft1D.realForward(fft);
         fft = filter(fft);
-        fft1D.realInverse(fft, false);
+        fft1D.complexInverse(fft, false);
 
         ArrayList<Double> output = new ArrayList<>();
-        for (double d : fft) output.add(d / (samples.size() / 2));
+        for (int i = 0; i < fft.length / 2; i++)
+            output.add(fft[i*2] / (samples.size() / 2));
 
         return output;
     }

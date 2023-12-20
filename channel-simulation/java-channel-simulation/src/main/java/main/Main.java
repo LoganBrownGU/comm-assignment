@@ -57,10 +57,10 @@ public class Main {
         double noise = 24;
         double depth = .8, amplitude = 1, carrierF = 15, modulationF = 7;
         ASKModulator modulator = new ASKModulator(depth, amplitude, carrierF, modulationF, new RandomStream());
-        Channel channel = new Channel(new Filter(0, 30), modulator.getRMS(), noise);
+        Channel channel = new Channel(new Filter(0, 80), modulator.getRMS(), noise);
         Receiver receiver = new Receiver(new ASKDemodulator(depth, amplitude, carrierF, modulationF));
 
-        Simulator simulator = new Simulator(new Transmitter(modulator, null), receiver, channel, 0, 5, 0.001, false);
+        Simulator simulator = new Simulator(new Transmitter(modulator, null), receiver, channel, 0, 5, 0.00001, false);
 
         Thread t1 = new Thread(() -> {
             while (!receiver.getDemodulator().getDataOut().isClosed()) {
@@ -75,7 +75,7 @@ public class Main {
 
         try {
             simulator.simulate();
-            t1.join();
+            //(t1.join();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
