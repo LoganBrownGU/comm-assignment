@@ -2,10 +2,11 @@ package simulator;
 
 import channel.Channel;
 import display.Display;
-import main.Plotter;
 import org.jfree.data.xy.XYDataItem;
+import org.jfree.data.xy.XYSeries;
 import receiver.Receiver;
 import transmitter.Transmitter;
+import util.Plotter;
 
 import java.util.ArrayList;
 
@@ -19,45 +20,18 @@ public class Simulator {
     private final Display display;
 
     public void simulate() throws InterruptedException {
-        // convert timeStep (s) into nanoseconds
-        long sleepTime = (long) (this.timeStep * 1_000_000_000);
-        ArrayList<XYDataItem> transmitterOut = new ArrayList<>();
-        ArrayList<XYDataItem> channelOut = new ArrayList<>();
-
-        for (double t = this.startTime; t < this.endTime; t += this.timeStep) {
-            long deltaT = System.nanoTime();
-
-            double f = this.transmitter.send(t);
-            byte byteIn = this.transmitter.getCurrentByte();
-            transmitterOut.add(new XYDataItem(t, f));
-            f = this.channel.output(f);
-            channelOut.add(new XYDataItem(t - this.timeStep * 1000, f));
-            this.receiver.receive(f, t);
-            byte byteOut = this.receiver.getCurrentByte();
-
-            if (!this.realtime) continue;
-
-            deltaT = sleepTime - (System.nanoTime() - deltaT);
-            try {
-                Thread.sleep(deltaT / 1_000_000, (int) (sleepTime - deltaT) % 1_000_000);
-            } catch (IllegalArgumentException e) {
-                System.out.println("exceeded timestep");
-            }
-
-            if (this.display == null) continue;
-            if (this.display.isFinished()) break;
-            this.display.update(transmitterOut.get(transmitterOut.size() - 1).getY().doubleValue(), channelOut.get(channelOut.size() - 1).getY().doubleValue(), byteIn, byteOut, this.timeStep);
-        }
-
-
-        XYDataItem[] transmitterArr = new XYDataItem[transmitterOut.size()];
-        for (int i = 0; i < transmitterArr.length; i++) transmitterArr[i] = transmitterOut.get(i);
-        XYDataItem[] channelArr = new XYDataItem[channelOut.size()];
-        for (int i = 0; i < channelArr.length; i++) channelArr[i] = channelOut.get(i);
-
-        Plotter.plot("Transmitter", "../assets/transmitter.png", "a", "t", new XYDataItem(1600, 900), new XYDataItem[][] {transmitterArr, channelArr});
+        ArrayList<Double> transmitterData = this.transmitter.calculate(this.startTime, this.endTime, this.timeStep);
+        ArrayList<Double> channelData = this.channel.calculate(transmitterData);
+        this.receiver.receive(channelData, this.startTime, this.endTime, this.timeStep);
+        ArrayList<Byte> dataIn = this.transmitter.getModulator().getSentBytes();
+        ArrayList<Byte> dataOut = this.receiver.getDemodulator().getReceivedBytes();
 
         this.receiver.getDemodulator().getDataOut().close();
+
+        XYDataItem[][] data = new XYDataItem[2][transmitterData.size()];
+        for (int i = 0; i < data[0].length; i++) data[0][i] = new XYDataItem(this.startTime + this.timeStep * i, (double) transmitterData.get(i));
+        for (int i = 0; i < data[0].length; i++) data[1][i] = new XYDataItem(this.startTime + this.timeStep * i, (double) channelData.get(i));
+        Plotter.plot("transmitted vs received", "../assets/trans-recv.png", "time", "amplitude", new XYDataItem(1600, 900), data);
 
         if (this.display == null) return;
         System.out.println("waiting for display to be closed...");

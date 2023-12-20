@@ -4,22 +4,23 @@ import java.util.ArrayList;
 
 public abstract class Demodulator {
     private final ArrayList<Byte> receivedBytes = new ArrayList<>();
-    private byte currentByte;
     private final DataOut dataOut;
 
-    public abstract void receive(double f, double t);
+    public abstract void receive(ArrayList<Double> samples, double start, double end, double step);
 
-    public void updateByte(byte bitMask, boolean bit) {
-        if (bit) this.currentByte |= bitMask;
+    public byte updateByte(byte currentByte, byte bitMask, boolean bit) {
+        if (bit) currentByte |= bitMask;
         else {
             byte invertMask = (byte) (currentByte & bitMask);
             currentByte ^= invertMask;
         }
 
         if (bitMask == (byte) 0b10000000) {
-            dataOut.push(currentByte);
-            receivedBytes.add(currentByte);
+            this.dataOut.push(currentByte);
+            this.receivedBytes.add(currentByte);
         }
+
+        return currentByte;
     }
 
     public Demodulator(DataOut dataOut) {
@@ -27,10 +28,10 @@ public abstract class Demodulator {
     }
 
     public ArrayList<Byte> getReceivedBytes() {
-        return receivedBytes;
+        return this.receivedBytes;
     }
 
     public DataOut getDataOut() {
-        return dataOut;
+        return this.dataOut;
     }
 }

@@ -2,14 +2,19 @@ package receiver;
 
 import main.Filter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class Receiver {
 
     private Filter filter;
     private Demodulator demodulator;
 
-    public void receive(double f, double t) {
-        if (filter != null) f = filter.output(f);
-        demodulator.receive(f, t);
+    public void receive(ArrayList<Double> samples, double start, double end, double step) {
+        ArrayList<Double> output = new ArrayList<>(samples);
+
+        if (this.filter != null) output = this.filter.calculate(samples);
+        this.demodulator.receive(output, start, end, step);
     }
 
     public Receiver(Filter filter, Demodulator demodulator) {

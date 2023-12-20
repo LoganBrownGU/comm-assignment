@@ -2,18 +2,23 @@ package channel;
 
 import main.Filter;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Channel {
     private Filter filter;
-    private final Random random = new Random();
     private final double noiseRMS;
 
-    public double output(double f) {
-        f += random.nextGaussian() * noiseRMS;
+    public ArrayList<Double> calculate(ArrayList<Double> samples) {
+        ArrayList<Double> output = new ArrayList<>();
+        Random random = new Random();
 
-        if (filter != null) return filter.output(f);
-        else return f;
+        for (double d : samples)
+            output.add(d + random.nextGaussian() * this.noiseRMS);
+
+        if (this.filter != null) return this.filter.calculate(output);
+
+        return output;
     }
 
     public Channel(Filter filter, double signalRMS, double noiseLevel) {

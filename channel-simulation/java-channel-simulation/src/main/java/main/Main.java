@@ -60,7 +60,7 @@ public class Main {
         Channel channel = new Channel(new Filter(0, 30), modulator.getRMS(), noise);
         Receiver receiver = new Receiver(new ASKDemodulator(depth, amplitude, carrierF, modulationF));
 
-        Simulator simulator = new Simulator(new Transmitter(modulator), receiver, channel, 0, 5, 0.001, new Display("Simulator"));
+        Simulator simulator = new Simulator(new Transmitter(modulator, null), receiver, channel, 0, 5, 0.001, false);
 
         Thread t1 = new Thread(() -> {
             while (!receiver.getDemodulator().getDataOut().isClosed()) {
@@ -71,7 +71,7 @@ public class Main {
                 }
             }
         });
-        t1.start();
+
 
         try {
             simulator.simulate();
@@ -80,8 +80,8 @@ public class Main {
             throw new RuntimeException(e);
         }
 
-        byteListToString(modulator.getSentBytes());
-        byteListToString(receiver.getDemodulator().getReceivedBytes());
-        System.out.println("error rate: " + getBitErrorRate(modulator, receiver));
+//        byteListToString(modulator.getSentBytes());
+//        byteListToString(receiver.getDemodulator().getReceivedBytes());
+//        System.out.println("error rate: " + getBitErrorRate(modulator, receiver));
     }
 }

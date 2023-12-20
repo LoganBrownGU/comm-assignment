@@ -4,29 +4,24 @@ import org.jfree.data.xy.XYDataItem;
 import org.jtransforms.fft.DoubleFFT_1D;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Filter {
     private final int fLow, fHigh;
-    // number of samples to store
-    private final int BACKLOG_SIZE = 1000;
-    private final DoubleFFT_1D fft1D = new DoubleFFT_1D(BACKLOG_SIZE);
-    private final ArrayList<Double> samples = new ArrayList<>();
-    private double[] outputs = new double[BACKLOG_SIZE * 2];
-    private int fftIdx = 0;
 
     private double[] filter(double[] fft) {
         double[] output = new double[fft.length];
-        for (int i = 0; i < fLow; i++) {
+        for (int i = 0; i < this.fLow; i++) {
             output[i * 2] = 0;
             output[i * 2 + 1] = 0;
         }
 
-        for (int i = fLow; i < fHigh; i++) {
+        for (int i = this.fLow; i < this.fHigh; i++) {
             output[i*2] = fft[i*2];
             output[i*2+1] = fft[i*2+1];
         }
 
-        for (int i = fHigh; i < fft.length / 2; i++) {
+        for (int i = this.fHigh; i < fft.length / 2; i++) {
             output[i * 2] = 0;
             output[i * 2 + 1] = 0;
         }
@@ -34,20 +29,20 @@ public class Filter {
         return output;
     }
 
-    public double output(double sample) {
-        samples.add(sample);
-        if (fftIdx == BACKLOG_SIZE) {
-            // fft of BACKLOG_SIZE oldest samples
-            double[] fft = new double[BACKLOG_SIZE * 2];
-            for (int i = 0; i < BACKLOG_SIZE; i++) fft[i] = samples.remove(0);
-            fft1D.realForward(fft);
-            fft = filter(fft);
-            fft1D.complexInverse(fft, false);
-            outputs = fft;
-            fftIdx = 0;
-        }
+    public ArrayList<Double> calculate(ArrayList<Double> samples) {
+        // turn into array
+        double[] fft = new double[samples.size()];
+        for (int i = 0; i < samples.size(); i++) fft[i] = samples.get(i);
 
-        return outputs[fftIdx++ * 2] / ((double) BACKLOG_SIZE / 2);
+        DoubleFFT_1D fft1D = new DoubleFFT_1D(fft.length);
+        fft1D.realForward(fft);
+        fft = filter(fft);
+        fft1D.realInverse(fft, false);
+
+        ArrayList<Double> output = new ArrayList<>();
+        for (double d : fft) output.add(d / (samples.size() / 2));
+
+        return output;
     }
 
     public Filter(int fLow, int fHigh) {
