@@ -18,12 +18,12 @@ public class Main {
 
         double f1 = 1;
         double f2 = 10;
-        Filter filter = new Filter(10, 0);
+        Filter filter = new Filter(10, 0, 1000);
 
         for (double t = 0; t < 10; t += 0.0025) {
             double f = Math.sin(2 * Math.PI * f1 * t) + 0.1 * Math.sin(2 * Math.PI * f2 * t);
             unfiltered.add(t, f);
-            f = filter.filter(f, t);
+            f = filter.filter(f);
             filtered.add(t, f);
         }
 

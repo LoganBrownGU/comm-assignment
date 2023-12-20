@@ -1,23 +1,25 @@
 package main;
 
+import java.util.ArrayList;
+
 public class Filter {
     private final double fMin, fMax;
-    private double prev;
-    private int frame = 0;
+    private final int span;
+    private final ArrayList<Double> samples = new ArrayList<>();
 
-    public double filter(double sample, double t) {
+    public double filter(double sample) {
         double alpha = 0.1;
-        double output = alpha * sample + (1-alpha) * prev;
-        if ((int) (t / 0.1) != frame) {
-            this.prev = sample;
-            frame++;
-        }
+        double output = alpha * sample + (1-alpha) * this.samples.get(0);
+        this.samples.add(output);
+        if (this.samples.size() > this.span) this.samples.remove(0);
+
         return output;
     }
 
-    public Filter(double fMin, double fMax) {
+    public Filter(double fMin, double fMax, int span) {
         this.fMin = 1/fMin;
         this.fMax = 1/fMax;
-        this.prev = 0;
+        this.span = span;
+        this.samples.add(0d);
     }
 }
