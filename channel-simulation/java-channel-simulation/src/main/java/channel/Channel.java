@@ -30,4 +30,8 @@ public class Channel {
     public void setFilter(Filter filter) {
         this.filter = filter;
     }
+
+    public double getNoiseRMS() {
+        return this.noiseRMS;
+    }
 }

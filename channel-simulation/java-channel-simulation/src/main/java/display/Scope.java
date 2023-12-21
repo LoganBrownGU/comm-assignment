@@ -6,12 +6,9 @@ import java.util.ArrayList;
 public class Scope extends Canvas {
 
     private Graphics2D graphics = null;
+    private final ArrayList<Double> amplitudes;
     private final ArrayList<Double> backlog = new ArrayList<>();
-    private int backlogSize = 1000;
-    private int frame = 0;
-    private final double FRAME_PERIOD = 1d / 60d;
-    private final double X_SCALE = 2;
-    private double time = 0;
+    private final double xScale, yScale, start, step;
 
     @Override
     public void paint(Graphics g) {
@@ -23,7 +20,7 @@ public class Scope extends Canvas {
         int prevX = 0, prevY = (int) (this.backlog.get(0) * this.getHeight() / 2) + this.getHeight() / 2;
         for (double d : this.backlog.subList(1, this.backlog.size() - 1)) {
             int y = (int) (d * this.getHeight() / 2) + this.getHeight() / 2;
-            int x = prevX + Math.max(this.getWidth() / this.backlogSize, 1);
+            int x = prevX + Math.max(this.getWidth() / this.backlog.size(), 1);
 
             this.graphics.drawLine(prevX, prevY, x, y);
             prevX = x;
@@ -31,14 +28,24 @@ public class Scope extends Canvas {
         }
     }
 
-    public void update(double sample, double timeStep) {
-        this.backlog.add(sample);
-        this.backlogSize = (int) (this.X_SCALE / timeStep);
-        this.time += timeStep;
-        if (this.backlog.size() > this.backlogSize) this.backlog.remove(0);
+    public void update(double time) {
 
-        if (Math.floor(this.time / this.FRAME_PERIOD) == this.frame) return;
-        this.frame++;
-        if (this.backlog.size() > 1) this.paint(this.graphics);
+        int start = (int) Math.max(0, (time - this.start - this.xScale) / this.step);
+        int end = (int) Math.max(0, (time - this.start) / this.step);
+
+        this.backlog.clear();
+        this.backlog.addAll(this.amplitudes.subList(start, end+1));
+
+        paint(this.graphics);
+    }
+
+    // Scales refer to how much should be shown. E.g. if xScale = 0.1, 0.1 seconds of data would be displayed at any
+    // given time.
+    public Scope(ArrayList<Double> amplitudes, double start, double step, double xScale, double yScale) {
+        this.amplitudes = amplitudes;
+        this.xScale = xScale;
+        this.yScale = yScale;
+        this.start = start;
+        this.step = step;
     }
 }
