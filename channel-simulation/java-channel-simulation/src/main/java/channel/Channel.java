@@ -11,6 +11,9 @@ public class Channel {
 
     public ArrayList<Double> calculate(ArrayList<Double> samples) {
         ArrayList<Double> output = new ArrayList<>(samples);
+        Random rd = new Random();
+
+        output.replaceAll(d -> d + rd.nextGaussian() * this.noiseRMS);
 
         if (this.filter != null) return this.filter.calculate(output);
 

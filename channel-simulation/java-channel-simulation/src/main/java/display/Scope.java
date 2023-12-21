@@ -12,6 +12,8 @@ public class Scope extends Canvas {
 
     @Override
     public void paint(Graphics g) {
+        if (this.backlog.isEmpty()) return;
+
         if (this.graphics == null) this.graphics = (Graphics2D) this.getGraphics();
 
         this.graphics.clearRect(0, 0, this.getWidth(), this.getHeight());
@@ -35,6 +37,8 @@ public class Scope extends Canvas {
 
         this.backlog.clear();
         this.backlog.addAll(this.amplitudes.subList(start, end+1));
+
+        //System.out.println(backlog.size());
 
         paint(this.graphics);
     }

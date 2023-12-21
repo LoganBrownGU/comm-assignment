@@ -16,7 +16,6 @@ public class Simulator {
     private Receiver receiver;
     private Channel channel;
     private final boolean realtime;
-    private final Display display;
 
     public void simulate() throws InterruptedException {
         ArrayList<Double> transmitterData = this.transmitter.calculate(this.startTime, this.endTime, this.timeStep);
@@ -30,7 +29,10 @@ public class Simulator {
         XYDataItem[][] data = new XYDataItem[2][transmitterData.size()];
         for (int i = 0; i < data[0].length; i++) data[0][i] = new XYDataItem(this.startTime + this.timeStep * i, (double) transmitterData.get(i));
         for (int i = 0; i < data[0].length; i++) data[1][i] = new XYDataItem(this.startTime + this.timeStep * i, (double) channelData.get(i));
-        Plotter.plot("transmitted vs received", "../assets/trans-recv.png", "time", "amplitude", new XYDataItem(1600, 900), data);
+        //Plotter.plot("transmitted vs received", "../assets/trans-recv.png", "time", "amplitude", new XYDataItem(1600, 900), data);
+
+        Display display = new Display("Sim", this.startTime, this.endTime, this.timeStep, transmitterData, channelData);
+        display.run();
 
         /*if (this.display == null) return;
         System.out.println("waiting for display to be closed...");
@@ -48,7 +50,6 @@ public class Simulator {
         this.endTime = endTime;
         this.timeStep = timeStep;
         this.realtime = realtime;
-        this.display = null;
     }
 
     public Simulator(Transmitter transmitter, Receiver receiver, Channel channel, double startTime, double endTime, double timeStep, Display display) {
@@ -59,8 +60,6 @@ public class Simulator {
         this.endTime = endTime;
         this.timeStep = timeStep;
         this.realtime = true;
-        this.display = display;
-        this.display.run();
     }
 
     public void setTransmitter(Transmitter transmitter) {

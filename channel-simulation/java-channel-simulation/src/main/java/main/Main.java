@@ -1,6 +1,7 @@
 package main;
 
 import channel.Channel;
+import display.Display;
 import receiver.ASKDemodulator;
 import receiver.Receiver;
 import simulator.Simulator;
