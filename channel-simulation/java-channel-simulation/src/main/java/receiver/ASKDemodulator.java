@@ -19,7 +19,7 @@ public class ASKDemodulator extends Demodulator {
             // if the number of bit transitions does not match the current frame, then move to the
             // next bit.
             if (transitions != frame) {
-                updateByte(currentByte, bitMask, maxAmp > this.amplitude * (1 - this.depth / 2));
+                currentByte = updateByte(currentByte, bitMask, maxAmp > this.amplitude * (1 - this.depth / 2));
 
                 maxAmp = 0;
                 bitMask <<= 1;

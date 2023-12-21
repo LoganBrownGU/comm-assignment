@@ -1,8 +1,6 @@
 package main;
 
 import channel.Channel;
-import display.Display;
-import org.jfree.data.xy.XYDataItem;
 import receiver.ASKDemodulator;
 import receiver.Receiver;
 import simulator.Simulator;
@@ -55,22 +53,12 @@ public class Main {
 
     public static void main(String[] args) {
         double noise = 24;
-        double depth = .8, amplitude = 1, carrierF = 15, modulationF = 7;
+        double depth = 1, amplitude = 1, carrierF = 15, modulationF = 7;
         ASKModulator modulator = new ASKModulator(depth, amplitude, carrierF, modulationF, new RandomStream());
         Channel channel = new Channel(new Filter(0, 80), modulator.getRMS(), noise);
         Receiver receiver = new Receiver(new ASKDemodulator(depth, amplitude, carrierF, modulationF));
 
-        Simulator simulator = new Simulator(new Transmitter(modulator, null), receiver, channel, 0, 5, 0.00001, false);
-
-        Thread t1 = new Thread(() -> {
-            while (!receiver.getDemodulator().getDataOut().isClosed()) {
-                try {
-                    System.out.println(receiver.getDemodulator().getDataOut().pop());
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
+        Simulator simulator = new Simulator(new Transmitter(modulator, null), receiver, channel, 0, 5, 0.000001, false);
 
 
         try {
@@ -80,8 +68,8 @@ public class Main {
             throw new RuntimeException(e);
         }
 
-//        byteListToString(modulator.getSentBytes());
-//        byteListToString(receiver.getDemodulator().getReceivedBytes());
-//        System.out.println("error rate: " + getBitErrorRate(modulator, receiver));
+        byteListToString(modulator.getSentBytes());
+        byteListToString(receiver.getDemodulator().getReceivedBytes());
+        System.out.println("error rate: " + getBitErrorRate(modulator, receiver));
     }
 }

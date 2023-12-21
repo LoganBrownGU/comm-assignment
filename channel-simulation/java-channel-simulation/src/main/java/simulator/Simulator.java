@@ -32,12 +32,12 @@ public class Simulator {
         for (int i = 0; i < data[0].length; i++) data[1][i] = new XYDataItem(this.startTime + this.timeStep * i, (double) channelData.get(i));
         Plotter.plot("transmitted vs received", "../assets/trans-recv.png", "time", "amplitude", new XYDataItem(1600, 900), data);
 
-        if (this.display == null) return;
+        /*if (this.display == null) return;
         System.out.println("waiting for display to be closed...");
         synchronized (this.display) {
             while (!this.display.isFinished()) this.display.wait();
         }
-        this.display.dispose();
+        this.display.dispose();*/
     }
 
     public Simulator(Transmitter transmitter, Receiver receiver, Channel channel, double startTime, double endTime, double timeStep, boolean realtime) {
