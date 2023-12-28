@@ -1,6 +1,7 @@
 package display;
 
 import modulator.Modulator;
+import util.Buffer;
 
 import java.awt.*;
 import java.awt.event.WindowAdapter;
@@ -9,11 +10,10 @@ import java.awt.event.WindowEvent;
 public class SimulatorView extends Frame implements Runnable {
 
     private final int messageLength;
-    private final byte[] inputBuffer, outputBuffer;
     public final Object lock = new Object();
-    private final Dimension IMAGE_DISPLAY_SIZE = new Dimension(500, 500);
+    private static final Dimension IMAGE_DISPLAY_SIZE = new Dimension(500, 500);
+    private static final Dimension PADDING = new Dimension(20, 60);
     private final ImageDisplay inputDisplay, outputDisplay;
-    private final
 
     private boolean playing, finished;
     private Modulator modulator;
@@ -21,9 +21,18 @@ public class SimulatorView extends Frame implements Runnable {
     private void init() {
         this.setLayout(null);
         this.setSize(1600, 900);
+        this.setResizable(false);
         this.setMenuBar(new MenuBar());
 
+        this.inputDisplay.setSize(IMAGE_DISPLAY_SIZE);
+        this.inputDisplay.setLocation(PADDING.width, PADDING.height);
+        this.inputDisplay.setVisible(true);
+        this.add(this.inputDisplay);
 
+        this.outputDisplay.setSize(IMAGE_DISPLAY_SIZE);
+        this.outputDisplay.setLocation(this.getWidth() - this.outputDisplay.getWidth() - PADDING.width, PADDING.height);
+        this.setVisible(true);
+        this.add(this.outputDisplay);
 
         this.setVisible(true);
         this.addWindowListener(new WindowAdapter() {
@@ -46,14 +55,12 @@ public class SimulatorView extends Frame implements Runnable {
         this.modulator = modulator;
     }
 
-    public SimulatorView(Modulator modulator, int messageLength, int pixelsWidth, int pixelsHeight) throws HeadlessException {
+    public SimulatorView(Modulator modulator, Buffer inputBuffer, Buffer outputBuffer, int messageLength, int pixelsWidth, int pixelsHeight) throws HeadlessException {
         super("Simulation");
         this.modulator = modulator;
         this.messageLength = messageLength;
-        this.inputBuffer = new byte[messageLength];
-        this.outputBuffer = new byte[messageLength];
-        this.inputDisplay = new ImageDisplay(pixelsWidth, pixelsHeight);
-        this.outputDisplay = new ImageDisplay(pixelsWidth, pixelsHeight);
+        this.inputDisplay = new ImageDisplay(inputBuffer, pixelsWidth, pixelsHeight);
+        this.outputDisplay = new ImageDisplay(outputBuffer, pixelsWidth, pixelsHeight);
     }
 
     public boolean isFinished() {

@@ -23,6 +23,8 @@ public class ASKModulator extends Modulator {
             amp[i] = this.carrierAmplitude * Math.sin(2 * Math.PI * t * this.carrierFrequency) * (bit ? 1 : 1 - this.depth);
         }
 
+        this.buffer.addData(data);
+
         return amp;
     }
 

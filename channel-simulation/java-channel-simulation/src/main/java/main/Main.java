@@ -1,6 +1,7 @@
 package main;
 
 import display.SimulatorSettings;
+import display.SimulatorView;
 import modulator.ASKModulator;
 import modulator.Modulator;
 
@@ -30,6 +31,16 @@ public class Main {
         for (String s : params) System.out.println(s);
 
         Modulator modulator = simSettings.getModulator();
+
+        SimulatorView simulatorView = new SimulatorView(modulator, );
+        simulatorView.run();
+        try {
+            synchronized (simulatorView.lock) {
+                while (!simulatorView.isFinished()) simulatorView.lock.wait();
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
 
         /*XYDataItem[] dataItems = new XYDataItem[amp.length];

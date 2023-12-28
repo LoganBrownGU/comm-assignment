@@ -110,6 +110,7 @@ public class SimulatorSettings extends Frame implements Runnable {
 
     private void init() {
         this.setLayout(null);
+        this.setResizable(false);
         this.setSize(2 * PADDING.width + 2 * PARAMS_SIZE.width, 900);
 
         String[] parameters = ModulatorType.getParameters(this.chosenModulator);
