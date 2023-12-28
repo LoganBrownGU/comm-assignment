@@ -70,7 +70,7 @@ public class Main {
 
         Modulator modulator = simSettings.getModulator();
 
-        SimulatorView simulatorView = new SimulatorView(modulator, null, 1000000, imageSize.width, imageSize.height);
+        SimulatorView simulatorView = new SimulatorView(modulator, null, 1000000, imageSize, 24);
         simulatorView.run();
         try {
             synchronized (simulatorView.lock) {

@@ -14,8 +14,9 @@ public class SimulatorView extends Frame implements Runnable {
     private static final Dimension IMAGE_DISPLAY_SIZE = new Dimension(500, 500);
     private static final Dimension PADDING = new Dimension(20, 60);
     private final ImageDisplay inputDisplay, outputDisplay;
+    private final int updatePeriod; // milliseconds
 
-    private boolean playing, finished;
+    private boolean playing = true, finished;
     private Modulator modulator;
 
     private void init() {
@@ -49,18 +50,28 @@ public class SimulatorView extends Frame implements Runnable {
     @Override
     public void run() {
         init();
+
+        while (!this.finished && this.playing) {
+            try {
+                this.inputDisplay.paint();
+                Thread.sleep(this.updatePeriod);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public void setModulator(Modulator modulator) {
         this.modulator = modulator;
     }
 
-    public SimulatorView(Modulator modulator, Buffer outputBuffer, int messageLength, int pixelsWidth, int pixelsHeight) throws HeadlessException {
+    public SimulatorView(Modulator modulator, Buffer outputBuffer, int messageLength, Dimension imageSize, int framerate) throws HeadlessException {
         super("Simulation");
         this.modulator = modulator;
         this.messageLength = messageLength;
-        this.inputDisplay = new ImageDisplay(modulator.buffer, pixelsWidth, pixelsHeight);
-        this.outputDisplay = new ImageDisplay(outputBuffer, pixelsWidth, pixelsHeight);
+        this.inputDisplay = new ImageDisplay(modulator.buffer, imageSize.width, imageSize.height);
+        this.outputDisplay = new ImageDisplay(outputBuffer, imageSize.width, imageSize.height);
+        this.updatePeriod = 1000 / framerate;
     }
 
     public boolean isFinished() {

@@ -13,9 +13,13 @@ public class Buffer {
     private final ArrayList<Byte> contents = new ArrayList<>();
     private boolean open = true;
 
-    public byte[] getChunk(int size) throws InterruptedException {
+    public byte[] getChunk(int size) {
         synchronized (this) {
-            while (this.contents.size() < size && this.open) this.wait();
+            while (this.contents.size() < size && this.open) {
+                try {
+                    this.wait();
+                } catch (InterruptedException e) { throw new RuntimeException(e); }
+            }
             if (!this.open) return null;
 
             byte[] chunk = new byte[size];
