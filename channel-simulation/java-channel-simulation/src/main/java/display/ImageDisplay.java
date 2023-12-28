@@ -6,19 +6,22 @@ import java.awt.*;
 
 public class ImageDisplay extends Canvas {
     private final int imageWidth, imageHeight;
-    private final Graphics2D g;
+    private Graphics2D g;
     private final Buffer dataBuffer;
 
     private Dimension pixelSize;
 
     public void paint() {
-        this.g.clearRect(0, 0, this.getWidth(), this.getHeight());
+        if (this.g == null) this.g = (Graphics2D) this.getGraphics();
 
-        for (int vert = 0; vert < this.getHeight(); vert += this.pixelSize.height) {
-            for (int hor = 0; hor < this.getWidth(); hor += this.pixelSize.width) {
+        //this.g.clearRect(0, 0, this.getWidth(), this.getHeight());
+
+        for (int vert = 0; vert < this.imageHeight; vert++) {
+            for (int hor = 0; hor < this.imageWidth; hor++) {
                 byte[] rgb = this.dataBuffer.getChunk(3);
-                this.g.setColor(new Color(rgb[0], rgb[1], rgb[2]));
-                this.g.drawRect(hor, vert, this.pixelSize.width, this.pixelSize.height);
+                this.dataBuffer.addData(rgb);   // todo delete this line
+                this.g.setColor(new Color(rgb[2] & 0xff, rgb[1] & 0xff, rgb[0] & 0xff));
+                this.g.fillRect(hor * this.pixelSize.width, vert * this.pixelSize.height, this.pixelSize.width, this.pixelSize.height);
             }
         }
     }
@@ -27,7 +30,6 @@ public class ImageDisplay extends Canvas {
         this.dataBuffer = dataBuffer;
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
-        this.g = (Graphics2D) super.getGraphics();
     }
 
     public int getImageWidth() {

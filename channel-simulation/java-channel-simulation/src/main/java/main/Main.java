@@ -47,11 +47,12 @@ public class Main {
 
     public static void main(String[] args) {
         ASKModulator askModulator = new ASKModulator(10, 5, 1, 0.8);
-        byte[] data = readImages("../assets/frames", 1);
+        byte[] data = readImages("../assets/frames", 10);
         Dimension imageSize = readImageSize("../assets/frames");
         double[] amp = askModulator.calculate(data, 0.001);
+        System.out.println(imageSize);
 
-        SimulatorSettings simSettings = new SimulatorSettings();
+        /*SimulatorSettings simSettings = new SimulatorSettings();
         simSettings.run();
         try {
             synchronized (simSettings.lock) {
@@ -68,9 +69,9 @@ public class Main {
         System.out.println("use ECC: " + useECC);
         for (String s : params) System.out.println(s);
 
-        Modulator modulator = simSettings.getModulator();
+        Modulator modulator = simSettings.getModulator();*/
 
-        SimulatorView simulatorView = new SimulatorView(modulator, null, 1000000, imageSize, 24);
+        SimulatorView simulatorView = new SimulatorView(askModulator, null, 1000000, imageSize, 2);
         simulatorView.run();
         try {
             synchronized (simulatorView.lock) {
