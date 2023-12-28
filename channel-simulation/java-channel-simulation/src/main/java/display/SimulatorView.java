@@ -55,11 +55,11 @@ public class SimulatorView extends Frame implements Runnable {
         this.modulator = modulator;
     }
 
-    public SimulatorView(Modulator modulator, Buffer inputBuffer, Buffer outputBuffer, int messageLength, int pixelsWidth, int pixelsHeight) throws HeadlessException {
+    public SimulatorView(Modulator modulator, Buffer outputBuffer, int messageLength, int pixelsWidth, int pixelsHeight) throws HeadlessException {
         super("Simulation");
         this.modulator = modulator;
         this.messageLength = messageLength;
-        this.inputDisplay = new ImageDisplay(inputBuffer, pixelsWidth, pixelsHeight);
+        this.inputDisplay = new ImageDisplay(modulator.buffer, pixelsWidth, pixelsHeight);
         this.outputDisplay = new ImageDisplay(outputBuffer, pixelsWidth, pixelsHeight);
     }
 
