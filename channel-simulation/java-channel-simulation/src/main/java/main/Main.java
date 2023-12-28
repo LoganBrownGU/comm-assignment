@@ -1,76 +1,39 @@
 package main;
 
-import channel.Channel;
-import display.Display;
-import receiver.ASKDemodulator;
-import receiver.Receiver;
-import simulator.Simulator;
-import transmitter.ASKModulator;
-import transmitter.Modulator;
-import transmitter.RandomStream;
-import transmitter.Transmitter;
+import display.SimulatorSettings;
+import modulator.ASKModulator;
+import modulator.Modulator;
 
 import java.util.ArrayList;
 
 public class Main {
-
-    public static void byteListToString(ArrayList<Byte> bytes) {
-        for (byte b : bytes) {
-            String str = Integer.toBinaryString(b);
-            if (str.length() > 8) {
-                System.out.print(str.substring(24) + " ");
-            } else {
-                for (int i = 8; i > str.length(); i--) System.out.print("0");
-                System.out.print(str + " ");
-            }
-        }
-        System.out.println();
-    }
-
-    /*
-    * EXPLANATION OF THE FOLLOWING BIT OPERATIONS:
-    *   XOR (^) will set a bit if the input bits are different (a bit error).
-    *   Java only performs bitwise operations on ints, which is why the type of error is int.
-    *   Java treats bytes as signed 8-bit integers, so when casting a byte to an int (32-bit integer) it will make the integer negative
-    *   if the first bit of the byte is set (e.g. 0xF0 becomes 0xFFFFFFF0). If the int is negative, there will be 24 extra "bit errors" in
-    *   that byte, since the while loop will continue until all the bits have been shifted out. ANDing the byte with 0x000000FF will set
-    *   the first 24 bits to 0, and leave the final 8 untouched.
-    */
-    private static double getBitErrorRate(Modulator modulator, Receiver receiver) {
-        int bitErrors = 0;
-        int n = Math.min(receiver.getDemodulator().getReceivedBytes().size(), modulator.getSentBytes().size());
-        for (int i = 0; i < n; i++) {
-            byte sentByte = modulator.getSentBytes().get(i);
-            byte receivedByte = receiver.getDemodulator().getReceivedBytes().get(i);
-
-            int error = (sentByte ^ receivedByte) & 0x000000FF;
-            while (error != 0) {
-                if ((error & 0b00000001) == 1) bitErrors++;
-                error >>>= 1;
-            }
-        }
-        return (double) bitErrors / (n * 8);
-    }
-
     public static void main(String[] args) {
-        double noise = 24;
-        double depth = 1, amplitude = 1, carrierF = 15, modulationF = 7;
-        ASKModulator modulator = new ASKModulator(depth, amplitude, carrierF, modulationF, new RandomStream());
-        Channel channel = new Channel(new Filter(0, 80), modulator.getRMS(), noise);
-        Receiver receiver = new Receiver(new ASKDemodulator(depth, amplitude, carrierF, modulationF));
+        ASKModulator askModulator = new ASKModulator(10, 5, 1, 0.8);
+        byte[] data = {'s', 'a'};
+        double[] amp = askModulator.calculate(data, 0.001);
 
-        Simulator simulator = new Simulator(new Transmitter(modulator, null), receiver, channel, 0, 5, 0.000001, false);
-
-
+        SimulatorSettings simSettings = new SimulatorSettings();
+        simSettings.run();
         try {
-            simulator.simulate();
-            //(t1.join();
+            synchronized (simSettings.lock) {
+                while (!simSettings.isFinished()) simSettings.lock.wait();
+            }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
 
-        byteListToString(modulator.getSentBytes());
-        byteListToString(receiver.getDemodulator().getReceivedBytes());
-        System.out.println("error rate: " + getBitErrorRate(modulator, receiver));
+        simSettings.dispose();
+
+        boolean useECC = simSettings.useECC();
+        ArrayList<String> params = simSettings.getModulatorParameters();
+        System.out.println("use ECC: " + useECC);
+        for (String s : params) System.out.println(s);
+
+        Modulator modulator = simSettings.getModulator();
+
+
+        /*XYDataItem[] dataItems = new XYDataItem[amp.length];
+        for (double t = 0, i = 0; i < dataItems.length; t += 0.001, i++) dataItems[(int) i] = new XYDataItem(t, amp[(int) i]);
+        Plotter.plot("test", "assets/test.png", "t", "a", new XYDataItem(1600, 900), dataItems);*/
     }
 }
