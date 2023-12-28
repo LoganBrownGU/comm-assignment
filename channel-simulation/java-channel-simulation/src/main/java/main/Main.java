@@ -46,10 +46,10 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        ASKModulator askModulator = new ASKModulator(10, 5, 1, 0.8);
+        ASKModulator askModulator = new ASKModulator(10, 5, 1, 0.8f);
         byte[] data = readImages("../assets/frames", 10);
         Dimension imageSize = readImageSize("../assets/frames");
-        double[] amp = askModulator.calculate(data, 0.001);
+        float[] amp = askModulator.calculate(data, 0.001f);
         System.out.println(imageSize);
 
         /*SimulatorSettings simSettings = new SimulatorSettings();
@@ -84,7 +84,7 @@ public class Main {
         simulatorView.dispose();
 
         /*XYDataItem[] dataItems = new XYDataItem[amp.length];
-        for (double t = 0, i = 0; i < dataItems.length; t += 0.001, i++) dataItems[(int) i] = new XYDataItem(t, amp[(int) i]);
+        for (float t = 0, i = 0; i < dataItems.length; t += 0.001, i++) dataItems[(int) i] = new XYDataItem(t, amp[(int) i]);
         Plotter.plot("test", "assets/test.png", "t", "a", new XYDataItem(1600, 900), dataItems);*/
     }
 }

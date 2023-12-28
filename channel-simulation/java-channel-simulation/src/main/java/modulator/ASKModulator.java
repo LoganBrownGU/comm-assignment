@@ -2,18 +2,18 @@ package modulator;
 
 public class ASKModulator extends Modulator {
 
-    private final double depth;
+    private final float depth;
     public static final String[] parameters = {"depth"};
 
     @Override
-    public double[] calculate(byte[] data, double timeStep) {
-        double bitPeriod = 1 / this.modulationFrequency;
-        double endTime = bitPeriod * data.length * 8;
+    public float[] calculate(byte[] data, float timeStep) {
+        float bitPeriod = 1 / this.modulationFrequency;
+        float endTime = bitPeriod * data.length * 8;
         System.out.println(endTime/timeStep);
-        double[] amp = new double[(int) (endTime / timeStep)];
+        float[] amp = new float[(int) (endTime / timeStep)];
 
         int i = 0;
-        for (double t = 0; i < amp.length; t += timeStep, i++) {
+        for (float t = 0; i < amp.length; t += timeStep, i++) {
             int bitFrame = (int) (t / bitPeriod);
             // select the byte
             int bitIndex = bitFrame / 8;
@@ -21,7 +21,7 @@ public class ASKModulator extends Modulator {
             byte bitMask = (byte) (0b00000001 << (bitFrame % 8));
             boolean bit = (bitMask & data[bitIndex]) != 0;
 
-            amp[i] = this.carrierAmplitude * Math.sin(2 * Math.PI * t * this.carrierFrequency) * (bit ? 1 : 1 - this.depth);
+            amp[i] = (float) (this.carrierAmplitude * Math.sin(2 * Math.PI * t * this.carrierFrequency) * (bit ? 1 : 1 - this.depth));
         }
 
         this.buffer.addData(data);
@@ -29,7 +29,7 @@ public class ASKModulator extends Modulator {
         return amp;
     }
 
-    public ASKModulator(double carrierFrequency, double modulationFrequency, double carrierAmplitude, double depth) {
+    public ASKModulator(float carrierFrequency, float modulationFrequency, float carrierAmplitude, float depth) {
         super(carrierFrequency, modulationFrequency, carrierAmplitude);
         this.depth = depth;
     }
