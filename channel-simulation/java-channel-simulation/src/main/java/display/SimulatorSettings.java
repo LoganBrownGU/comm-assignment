@@ -45,11 +45,11 @@ public class SimulatorSettings extends Frame implements Runnable {
         if (!this.finished) throw new RuntimeException("SimulatorSettings is not finished");
 
         switch (this.chosenModulator) {
-            case ModulatorType.ASK:
+            case ASK:
                 return ModulatorFactory.createASKModulator(this.modulatorParameters);
-            case ModulatorType.FSK:
+            case FSK:
                 break;
-            case ModulatorType.QAM:
+            case QAM:
                 break;
         }
 

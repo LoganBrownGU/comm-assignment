@@ -1,6 +1,7 @@
 package display;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class ImageDisplay extends Canvas {
     private final int pixelsWidth, pixelsHeight;
