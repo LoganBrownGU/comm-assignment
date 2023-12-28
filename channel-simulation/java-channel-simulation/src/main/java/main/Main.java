@@ -47,7 +47,7 @@ public class Main {
 
     public static void main(String[] args) {
         ASKModulator askModulator = new ASKModulator(10, 5, 1, 0.8f);
-        byte[] data = readImages("../assets/frames", 10);
+        byte[] data = readImages("../assets/frames", 49);
         Dimension imageSize = readImageSize("../assets/frames");
         float[] amp = askModulator.calculate(data, 0.001f);
         System.out.println(imageSize);
@@ -71,7 +71,7 @@ public class Main {
 
         Modulator modulator = simSettings.getModulator();*/
 
-        SimulatorView simulatorView = new SimulatorView(askModulator, null, 1000000, imageSize, 2);
+        SimulatorView simulatorView = new SimulatorView(askModulator, null, 1000000, imageSize, 24);
         simulatorView.run();
         try {
             synchronized (simulatorView.lock) {
