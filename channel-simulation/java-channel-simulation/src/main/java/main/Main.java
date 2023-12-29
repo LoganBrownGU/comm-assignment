@@ -50,7 +50,6 @@ public class Main {
         byte[] data = readImages("../assets/frames", 49);
         Dimension imageSize = readImageSize("../assets/frames");
         float[] amp = askModulator.calculate(data, 0.001f);
-        System.out.println(imageSize);
 
         /*SimulatorSettings simSettings = new SimulatorSettings();
         simSettings.run();

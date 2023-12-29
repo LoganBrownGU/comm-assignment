@@ -9,7 +9,6 @@ public class ASKModulator extends Modulator {
     public float[] calculate(byte[] data, float timeStep) {
         float bitPeriod = 1 / this.modulationFrequency;
         float endTime = bitPeriod * data.length * 8;
-        System.out.println(endTime/timeStep);
         float[] amp = new float[(int) (endTime / timeStep)];
 
         int i = 0;
