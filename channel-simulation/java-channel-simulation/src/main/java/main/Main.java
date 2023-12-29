@@ -51,7 +51,7 @@ public class Main {
         Dimension imageSize = readImageSize("../assets/frames");
         float[] amp = askModulator.calculate(data, 0.001f);
 
-        /*SimulatorSettings simSettings = new SimulatorSettings();
+        SimulatorSettings simSettings = new SimulatorSettings();
         simSettings.run();
         try {
             synchronized (simSettings.lock) {
@@ -68,7 +68,7 @@ public class Main {
         System.out.println("use ECC: " + useECC);
         for (String s : params) System.out.println(s);
 
-        Modulator modulator = simSettings.getModulator();*/
+        Modulator modulator = simSettings.getModulator();
 
         SimulatorView simulatorView = new SimulatorView(askModulator, null, imageSize, 24);
         simulatorView.run();
