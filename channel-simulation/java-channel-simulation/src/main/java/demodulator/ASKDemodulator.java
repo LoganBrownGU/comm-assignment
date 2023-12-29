@@ -1,42 +1,45 @@
 package demodulator;
 
+import java.util.Random;
+
 public class ASKDemodulator extends Demodulator {
 
     private final float depth, amplitude, modulationPeriod;
-    private float maxAmp;       // max amplitude for this bit frame
-    private int transitions;    // no. bit transitions
-    private byte bitMask;
 
     @Override
-    public void initialCalculate(float[] amp, float timeStep) {
-        this.amp = amp;
-    }
+    protected void calculate(float[] amp, float snr, float timeStep) {
+        float signalRMS = this.amplitude / (float) Math.sqrt(2);
+        float noiseRMS = (float) (signalRMS / Math.pow(10, snr/20));
+        Random rd = new Random();
 
-    @Override
-    public void next(float noise) {
-        float time = this.timeStep * this.index;
-        float f = this.amp[this.index] + noise;
+        float maxAmp = 0;
+        int transitions = 0;
+        byte bitMask = 0x01;
+        byte currentByte = 0;
 
-        this.maxAmp = Math.max(f, this.maxAmp);
-        int frame = (int) (time / this.modulationPeriod);
+        int i = 0;
+        for (float t = 0; i < amp.length; t += timeStep, i++) {
+            float f = amp[i] + (float) rd.nextGaussian() * noiseRMS;
+            maxAmp = Math.max(f, maxAmp);
+            int bitFrame = (int) (t / this.modulationPeriod);
 
-        if (this.transitions != frame) {
-            updateByte(this.bitMask, this.maxAmp > this.amplitude * (1 - this.depth/2));
+            if (bitFrame != transitions) {
+                boolean bit = maxAmp > this.amplitude * (1 - this.depth / 2);
+                updateByte(currentByte, bitMask, bit);
 
-            this.maxAmp = 0;
-            this.bitMask <<= 1;
-            this.transitions++;
-
-            if (this.bitMask == (byte) 0) this.bitMask = 0x01;
+                bitMask <<= 1;
+                transitions++;
+                if (bitMask == 0x00) {
+                    bitMask = 0x01;
+                    this.buffer.addData(currentByte);
+                }
+            }
         }
-
-        this.index++;
     }
 
-    public ASKDemodulator(float[] amp, float timeStep, float depth, float amplitude, float modulationFrequency) {
-        super(amp, timeStep);
+    public ASKDemodulator(float depth, float amplitude, float modulationPeriod) {
         this.depth = depth;
         this.amplitude = amplitude;
-        this.modulationPeriod = 1f / modulationFrequency;
+        this.modulationPeriod = modulationPeriod;
     }
 }
