@@ -77,13 +77,13 @@ public class Simulator {
         Dimension imageSize = readImageSize(path);
         Demodulator demodulator = ModulatorFactory.getDemodulator(modulator);*/
 
-        ASKModulator modulator = new ASKModulator(10, 5, 1, .8f);
+        ASKModulator modulator = new ASKModulator(10000, 5000, 1, .8f);
         String path = "../assets/frames";
-        byte[] data = readImages(path, 49);
+        byte[] data = readImages(path, 20);
         Dimension imageSize = readImageSize(path);
         Demodulator demodulator = ModulatorFactory.getDemodulator(modulator);
-        float timeStep = 0.001f;
-        float snr = 100;
+        float timeStep = 0.000001f;
+        float snr = 10;
 
         System.out.println("modulating...");
         float[] amp = modulator.calculate(data, timeStep);

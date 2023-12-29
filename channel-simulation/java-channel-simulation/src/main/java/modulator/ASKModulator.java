@@ -11,11 +11,12 @@ public class ASKModulator extends Modulator {
         float endTime = bitPeriod * data.length * 8;
         float[] amp = new float[(int) (endTime / timeStep)];
 
-        for (int i = 0; i < amp.length - 8; i++) {
+        for (int i = 0; i < amp.length; i++) {
             float t = i * timeStep;
             int bitFrame = (int) (t / bitPeriod);
             // select the byte
             int bitIndex = bitFrame / 8;
+            if (bitIndex == data.length) break;
 
             // select the bit in the byte
             byte bitMask = (byte) (0b00000001 << (bitFrame % 8));
