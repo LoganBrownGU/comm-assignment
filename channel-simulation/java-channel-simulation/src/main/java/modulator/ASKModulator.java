@@ -7,15 +7,16 @@ public class ASKModulator extends Modulator {
 
     @Override
     public float[] calculate(byte[] data, float timeStep) {
-        float bitPeriod = 1 / this.modulationFrequency;
+        float bitPeriod = 1f / this.modulationFrequency;
         float endTime = bitPeriod * data.length * 8;
         float[] amp = new float[(int) (endTime / timeStep)];
 
-        int i = 0;
-        for (float t = 0; i < amp.length; t += timeStep, i++) {
+        for (int i = 0; i < amp.length - 8; i++) {
+            float t = i * timeStep;
             int bitFrame = (int) (t / bitPeriod);
             // select the byte
             int bitIndex = bitFrame / 8;
+
             // select the bit in the byte
             byte bitMask = (byte) (0b00000001 << (bitFrame % 8));
             boolean bit = (bitMask & data[bitIndex]) != 0;

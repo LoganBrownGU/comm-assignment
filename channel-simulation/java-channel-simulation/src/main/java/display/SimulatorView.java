@@ -18,6 +18,7 @@ public class SimulatorView extends Frame implements Runnable {
 
     private boolean playing = true, finished;
     private Modulator modulator;
+    private Demodulator demodulator;
 
     private void init() {
         this.setLayout(null);
@@ -54,6 +55,7 @@ public class SimulatorView extends Frame implements Runnable {
         while (!this.finished && this.playing) {
             try {
                 this.inputDisplay.paint();
+                this.outputDisplay.paint();
                 Thread.sleep(this.updatePeriod);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -65,11 +67,11 @@ public class SimulatorView extends Frame implements Runnable {
         this.modulator = modulator;
     }
 
-    public SimulatorView(Modulator modulator, Buffer outputBuffer, Dimension imageSize, int framerate) throws HeadlessException {
+    public SimulatorView(Modulator modulator, Demodulator demodulator, Dimension imageSize, int framerate) throws HeadlessException {
         super("Simulation");
         this.modulator = modulator;
         this.inputDisplay = new ImageDisplay(modulator.buffer, imageSize.width, imageSize.height);
-        this.outputDisplay = new ImageDisplay(outputBuffer, imageSize.width, imageSize.height);
+        this.outputDisplay = new ImageDisplay(demodulator.buffer, imageSize.width, imageSize.height);
         this.updatePeriod = 1000 / framerate;
     }
 

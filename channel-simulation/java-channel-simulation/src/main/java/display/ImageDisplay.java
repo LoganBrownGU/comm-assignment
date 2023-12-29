@@ -19,6 +19,7 @@ public class ImageDisplay extends Canvas {
         for (int vert = 0; vert < this.imageHeight; vert++) {
             for (int hor = 0; hor < this.imageWidth; hor++) {
                 byte[] rgb = this.dataBuffer.getChunk(3);
+                this.dataBuffer.addData(rgb);
                 this.g.setColor(new Color(Byte.toUnsignedInt(rgb[2]), Byte.toUnsignedInt(rgb[1]), Byte.toUnsignedInt(rgb[0])));
                 this.g.fillRect(hor * this.pixelSize.width, vert * this.pixelSize.height, this.pixelSize.width, this.pixelSize.height);
             }

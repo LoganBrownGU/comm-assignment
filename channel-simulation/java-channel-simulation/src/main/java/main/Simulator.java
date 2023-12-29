@@ -1,8 +1,10 @@
 package main;
 
+import demodulator.ASKDemodulator;
 import demodulator.Demodulator;
 import display.SimulatorSettings;
 import display.SimulatorView;
+import modulator.ASKModulator;
 import modulator.Modulator;
 import modulator.ModulatorFactory;
 import org.jfree.data.xy.XYDataItem;
@@ -60,7 +62,7 @@ public class Simulator {
     }
 
     public static void simulate() throws InterruptedException {
-        simulatorSettings = new SimulatorSettings();
+        /*simulatorSettings = new SimulatorSettings();
         simulatorSettings.run();
         synchronized (simulatorSettings.lock) {
             while (!simulatorSettings.isFinished()) simulatorSettings.lock.wait();
@@ -71,9 +73,17 @@ public class Simulator {
         float timeStep = 0.001f;
         Modulator modulator = simulatorSettings.getModulator();
         String path = "../assets/frames";
-        byte[] data = readImages(path, 1);
+        byte[] data = readImages(path, 10);
+        Dimension imageSize = readImageSize(path);
+        Demodulator demodulator = ModulatorFactory.getDemodulator(modulator);*/
+
+        ASKModulator modulator = new ASKModulator(10, 5, 1, .8f);
+        String path = "../assets/frames";
+        byte[] data = readImages(path, 49);
         Dimension imageSize = readImageSize(path);
         Demodulator demodulator = ModulatorFactory.getDemodulator(modulator);
+        float timeStep = 0.001f;
+        float snr = 100;
 
         System.out.println("modulating...");
         float[] amp = modulator.calculate(data, timeStep);
@@ -83,10 +93,9 @@ public class Simulator {
         System.out.println("demodulating...");
         demodulator.calculate(amp, snr, timeStep);
 
-        simulatorSettings.dispose();
+        //simulatorSettings.dispose();
 
-        for (int i = 0; i < 20; i++) {
-            System.out.println(modulator.buffer.getByte() + " " + demodulator.buffer.getByte());
-        }
+        simulatorView = new SimulatorView(modulator, demodulator, imageSize, 25);
+        simulatorView.run();
     }
 }

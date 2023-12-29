@@ -50,6 +50,10 @@ public class Buffer {
             this.notifyAll();
         }
     }
+    
+    public boolean isEmpty() {
+        return this.contents.isEmpty();
+    }
 
     public void close() {
         this.open = false;

@@ -17,13 +17,14 @@ public class ASKDemodulator extends Demodulator {
         byte bitMask = 0x01;
         byte currentByte = 0;
 
-        int i = 0;
-        for (float t = 0; i < amp.length; t += timeStep, i++) {
+        for (int i = 0; i < amp.length; i++) {
             float f = amp[i] + (float) rd.nextGaussian() * noiseRMS;
+            float t = i * timeStep;
             maxAmp = Math.max(f, maxAmp);
-            int bitFrame = (int) (t / this.modulationPeriod);
+            int bitFrame = (int) Math.floor(t / this.modulationPeriod);
 
             if (bitFrame != transitions) {
+
                 boolean bit = maxAmp > this.amplitude * (1 - this.depth / 2);
                 currentByte = updateByte(currentByte, bitMask, bit);
 
