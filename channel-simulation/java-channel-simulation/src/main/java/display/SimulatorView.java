@@ -2,8 +2,10 @@ package display;
 
 import demodulator.Demodulator;
 import modulator.Modulator;
-import util.Buffer;
 
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -11,9 +13,12 @@ import java.awt.event.WindowEvent;
 public class SimulatorView extends Frame implements Runnable {
 
     public final Object lock = new Object();
-    private static final Dimension IMAGE_DISPLAY_SIZE = new Dimension(500, 500);
+    private static final Dimension IMAGE_DISPLAY_SIZE = new Dimension(700, 700);
     private static final Dimension PADDING = new Dimension(20, 60);
+    private static final int minSNR = 3, maxSNR = 240;
     private final ImageDisplay inputDisplay, outputDisplay;
+    private final JSlider snrSlider = new JSlider();
+    private final TextField snrDisplay = new TextField();
     private final int updatePeriod; // milliseconds
 
     private boolean playing = true, finished;
@@ -33,8 +38,45 @@ public class SimulatorView extends Frame implements Runnable {
 
         this.outputDisplay.setSize(IMAGE_DISPLAY_SIZE);
         this.outputDisplay.setLocation(this.getWidth() - this.outputDisplay.getWidth() - PADDING.width, PADDING.height);
-        this.setVisible(true);
+        this.outputDisplay.setVisible(true);
         this.add(this.outputDisplay);
+
+        Dimension sliderLabelSize = new Dimension(50, 20);
+
+        this.snrSlider.setSize(IMAGE_DISPLAY_SIZE.width, 20);
+        this.snrSlider.setLocation(this.getWidth() / 2 - this.snrSlider.getWidth() / 2, (int) (this.getHeight() - sliderLabelSize.height * 2.3));
+        this.snrSlider.setVisible(true);
+        this.snrSlider.setMinimum(minSNR);
+        this.snrSlider.setMaximum(maxSNR);
+        this.snrSlider.addChangeListener(e -> this.snrDisplay.setText(this.snrSlider.getValue() + " dB"));
+        this.add(this.snrSlider);
+
+        Label sliderLabel = new Label(minSNR + " dB");
+        sliderLabel.setAlignment(Label.RIGHT);
+        sliderLabel.setSize(sliderLabelSize);
+        sliderLabel.setLocation(this.snrSlider.getX() - sliderLabel.getWidth(), this.snrSlider.getY());
+        sliderLabel.setVisible(true);
+        this.add(sliderLabel);
+
+        sliderLabel = new Label(maxSNR + " dB");
+        sliderLabel.setSize(sliderLabelSize);
+        sliderLabel.setLocation(this.snrSlider.getX() + this.snrSlider.getWidth(), this.snrSlider.getY());
+        sliderLabel.setVisible(true);
+        this.add(sliderLabel);
+
+        sliderLabel = new Label("SNR");
+        sliderLabel.setAlignment(Label.CENTER);
+        sliderLabel.setSize(sliderLabelSize);
+        sliderLabel.setLocation(this.snrSlider.getX() + this.snrSlider.getWidth() / 2, this.snrSlider.getY() - sliderLabel.getHeight());
+        sliderLabel.setVisible(true);
+        this.add(sliderLabel);
+
+        this.snrDisplay.setLocation(this.snrSlider.getX() + this.snrSlider.getWidth() / 2, this.snrSlider.getY() + this.snrSlider.getHeight());
+        this.snrDisplay.setSize(sliderLabelSize);
+        this.snrDisplay.setVisible(true);
+        this.snrDisplay.setEditable(false);
+        this.snrDisplay.setText(this.snrSlider.getValue() + " dB");
+        this.add(this.snrDisplay);
 
         this.setVisible(true);
         this.addWindowListener(new WindowAdapter() {

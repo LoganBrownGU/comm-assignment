@@ -79,11 +79,11 @@ public class Simulator {
 
         ASKModulator modulator = new ASKModulator(10000, 5000, 1, .8f);
         String path = "../assets/frames";
-        byte[] data = readImages(path, 20);
+        byte[] data = readImages(path, 10);
         Dimension imageSize = readImageSize(path);
         Demodulator demodulator = ModulatorFactory.getDemodulator(modulator);
         float timeStep = 0.000001f;
-        float snr = 10;
+        float snr = 12;
 
         System.out.println("modulating...");
         float[] amp = modulator.calculate(data, timeStep);
@@ -97,5 +97,10 @@ public class Simulator {
 
         simulatorView = new SimulatorView(modulator, demodulator, imageSize, 25);
         simulatorView.run();
+
+        synchronized (simulatorView.lock) {
+            while (!simulatorView.isFinished()) simulatorView.lock.wait();
+        }
+        simulatorView.dispose();
     }
 }
