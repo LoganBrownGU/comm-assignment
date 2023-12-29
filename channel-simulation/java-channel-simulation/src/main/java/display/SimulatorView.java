@@ -1,5 +1,6 @@
 package display;
 
+import demodulator.Demodulator;
 import modulator.Modulator;
 import util.Buffer;
 
@@ -9,7 +10,6 @@ import java.awt.event.WindowEvent;
 
 public class SimulatorView extends Frame implements Runnable {
 
-    private final int messageLength;
     public final Object lock = new Object();
     private static final Dimension IMAGE_DISPLAY_SIZE = new Dimension(500, 500);
     private static final Dimension PADDING = new Dimension(20, 60);
@@ -65,10 +65,9 @@ public class SimulatorView extends Frame implements Runnable {
         this.modulator = modulator;
     }
 
-    public SimulatorView(Modulator modulator, Buffer outputBuffer, int messageLength, Dimension imageSize, int framerate) throws HeadlessException {
+    public SimulatorView(Modulator modulator, Buffer outputBuffer, Dimension imageSize, int framerate) throws HeadlessException {
         super("Simulation");
         this.modulator = modulator;
-        this.messageLength = messageLength;
         this.inputDisplay = new ImageDisplay(modulator.buffer, imageSize.width, imageSize.height);
         this.outputDisplay = new ImageDisplay(outputBuffer, imageSize.width, imageSize.height);
         this.updatePeriod = 1000 / framerate;
@@ -76,5 +75,9 @@ public class SimulatorView extends Frame implements Runnable {
 
     public boolean isFinished() {
         return this.finished;
+    }
+
+    public boolean isPlaying() {
+        return this.playing;
     }
 }
