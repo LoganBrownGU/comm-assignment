@@ -1,8 +1,12 @@
 package main;
 
+import demodulator.Demodulator;
 import display.SimulatorSettings;
 import display.SimulatorView;
 import modulator.Modulator;
+import modulator.ModulatorFactory;
+import org.jfree.data.xy.XYDataItem;
+import util.Plotter;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -61,13 +65,28 @@ public class Simulator {
         synchronized (simulatorSettings.lock) {
             while (!simulatorSettings.isFinished()) simulatorSettings.lock.wait();
         }
-        simulatorSettings.dispose();
 
         boolean useECC = simulatorSettings.useECC();
+        float snr = simulatorSettings.getSNR();
+        float timeStep = 0.001f;
         Modulator modulator = simulatorSettings.getModulator();
         String path = "../assets/frames";
-        byte[] data = readImages(path, 49);
+        byte[] data = readImages(path, 1);
         Dimension imageSize = readImageSize(path);
-        float[] amp = modulator.calculate(data, 0.001f);
+        Demodulator demodulator = ModulatorFactory.getDemodulator(modulator);
+
+        System.out.println("modulating...");
+        float[] amp = modulator.calculate(data, timeStep);
+        XYDataItem[] dataItems = new XYDataItem[10000];
+        for (float t = 0, i = 0; i < dataItems.length; t += timeStep, i++) dataItems[(int) i] = new XYDataItem(t, amp[(int) i]);
+        Plotter.plot("test", "assets/test.png", "t", "a", new XYDataItem(1600, 900), dataItems);
+        System.out.println("demodulating...");
+        demodulator.calculate(amp, snr, timeStep);
+
+        simulatorSettings.dispose();
+
+        for (int i = 0; i < 20; i++) {
+            System.out.println(modulator.buffer.getByte() + " " + demodulator.buffer.getByte());
+        }
     }
 }

@@ -45,8 +45,8 @@ public class Main {
         return new Dimension(width, height);
     }
 
-    public static void main(String[] args) {
-        ASKModulator askModulator = new ASKModulator(10, 5, 1, 0.8f);
+    public static void main(String[] args) throws InterruptedException {
+        /*ASKModulator askModulator = new ASKModulator(10, 5, 1, 0.8f);
         byte[] data = readImages("../assets/frames", 49);
         Dimension imageSize = readImageSize("../assets/frames");
         float[] amp = askModulator.calculate(data, 0.001f);
@@ -80,10 +80,8 @@ public class Main {
             throw new RuntimeException(e);
         }
 
-        simulatorView.dispose();
+        simulatorView.dispose();*/
 
-        /*XYDataItem[] dataItems = new XYDataItem[amp.length];
-        for (float t = 0, i = 0; i < dataItems.length; t += 0.001, i++) dataItems[(int) i] = new XYDataItem(t, amp[(int) i]);
-        Plotter.plot("test", "assets/test.png", "t", "a", new XYDataItem(1600, 900), dataItems);*/
+        Simulator.simulate();
     }
 }

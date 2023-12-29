@@ -32,4 +32,8 @@ public class ASKModulator extends Modulator {
         super(carrierFrequency, modulationFrequency, carrierAmplitude);
         this.depth = depth;
     }
+
+    public float getDepth() {
+        return this.depth;
+    }
 }

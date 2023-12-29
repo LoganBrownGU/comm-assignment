@@ -6,7 +6,7 @@ public abstract class Demodulator {
 
     public final Buffer buffer = new Buffer();
 
-    protected abstract void calculate(float[] amp, float snr, float timeStep);
+    public abstract void calculate(float[] amp, float snr, float timeStep);
 
     protected byte updateByte(byte currentByte, byte bitMask, boolean bit) {
         if (bit) currentByte |= bitMask;

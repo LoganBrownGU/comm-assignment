@@ -14,4 +14,16 @@ public abstract class Modulator {
         this.modulationFrequency = modulationFrequency;
         this.carrierAmplitude = carrierAmplitude;
     }
+
+    public float getCarrierFrequency() {
+        return this.carrierFrequency;
+    }
+
+    public float getModulationFrequency() {
+        return this.modulationFrequency;
+    }
+
+    public float getCarrierAmplitude() {
+        return this.carrierAmplitude;
+    }
 }

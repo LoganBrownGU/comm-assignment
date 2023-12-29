@@ -7,7 +7,7 @@ public class ASKDemodulator extends Demodulator {
     private final float depth, amplitude, modulationPeriod;
 
     @Override
-    protected void calculate(float[] amp, float snr, float timeStep) {
+    public void calculate(float[] amp, float snr, float timeStep) {
         float signalRMS = this.amplitude / (float) Math.sqrt(2);
         float noiseRMS = (float) (signalRMS / Math.pow(10, snr/20));
         Random rd = new Random();
@@ -25,10 +25,11 @@ public class ASKDemodulator extends Demodulator {
 
             if (bitFrame != transitions) {
                 boolean bit = maxAmp > this.amplitude * (1 - this.depth / 2);
-                updateByte(currentByte, bitMask, bit);
+                currentByte = updateByte(currentByte, bitMask, bit);
 
                 bitMask <<= 1;
                 transitions++;
+                maxAmp = 0;
                 if (bitMask == 0x00) {
                     bitMask = 0x01;
                     this.buffer.addData(currentByte);
@@ -37,9 +38,9 @@ public class ASKDemodulator extends Demodulator {
         }
     }
 
-    public ASKDemodulator(float depth, float amplitude, float modulationPeriod) {
+    public ASKDemodulator(float depth, float amplitude, float modulationFrequency) {
         this.depth = depth;
         this.amplitude = amplitude;
-        this.modulationPeriod = modulationPeriod;
+        this.modulationPeriod = 1f / modulationFrequency ;
     }
 }

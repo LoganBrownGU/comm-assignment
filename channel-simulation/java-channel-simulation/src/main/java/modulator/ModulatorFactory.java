@@ -1,5 +1,8 @@
 package modulator;
 
+import demodulator.ASKDemodulator;
+import demodulator.Demodulator;
+
 import java.util.ArrayList;
 
 public class ModulatorFactory {
@@ -11,5 +14,14 @@ public class ModulatorFactory {
         float depth = Float.parseFloat(parameters.get(3));
 
         return new ASKModulator(carrierFrequency, modulationFrequency, carrierAmplitude, depth);
+    }
+
+    public static Demodulator getDemodulator(Modulator modulator) {
+        if (modulator instanceof ASKModulator) {
+            ASKModulator ask = (ASKModulator) modulator;
+            return new ASKDemodulator(ask.getDepth(), ask.getCarrierAmplitude(), ask.getModulationFrequency());
+        }
+
+        return null;
     }
 }
