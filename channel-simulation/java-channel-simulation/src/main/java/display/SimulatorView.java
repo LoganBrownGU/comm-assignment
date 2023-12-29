@@ -1,11 +1,10 @@
 package display;
 
 import demodulator.Demodulator;
+import main.SimulationController;
 import modulator.Modulator;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -20,6 +19,7 @@ public class SimulatorView extends Frame implements Runnable {
     private final JSlider snrSlider = new JSlider();
     private final TextField snrDisplay = new TextField();
     private final int updatePeriod; // milliseconds
+    private final SimulationController controller;
 
     private boolean playing = true, finished;
     private Modulator modulator;
@@ -48,7 +48,10 @@ public class SimulatorView extends Frame implements Runnable {
         this.snrSlider.setVisible(true);
         this.snrSlider.setMinimum(minSNR);
         this.snrSlider.setMaximum(maxSNR);
-        this.snrSlider.addChangeListener(e -> this.snrDisplay.setText(this.snrSlider.getValue() + " dB"));
+        this.snrSlider.addChangeListener(e -> {
+            this.snrDisplay.setText(this.snrSlider.getValue() + " dB");
+            this.controller.updateSNR(this.snrSlider.getValue(), this.modulator.getRMS());
+        });
         this.add(this.snrSlider);
 
         Label sliderLabel = new Label(minSNR + " dB");
@@ -109,8 +112,9 @@ public class SimulatorView extends Frame implements Runnable {
         this.modulator = modulator;
     }
 
-    public SimulatorView(Modulator modulator, Demodulator demodulator, Dimension imageSize, int framerate) throws HeadlessException {
+    public SimulatorView(SimulationController controller, Modulator modulator, Demodulator demodulator, Dimension imageSize, int framerate) throws HeadlessException {
         super("Simulation");
+        this.controller = controller;
         this.modulator = modulator;
         this.inputDisplay = new ImageDisplay(modulator.buffer, imageSize.width, imageSize.height);
         this.outputDisplay = new ImageDisplay(demodulator.buffer, imageSize.width, imageSize.height);
@@ -123,5 +127,9 @@ public class SimulatorView extends Frame implements Runnable {
 
     public boolean isPlaying() {
         return this.playing;
+    }
+
+    public int getSNR() {
+        return this.snrSlider.getValue();
     }
 }

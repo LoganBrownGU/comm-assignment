@@ -4,17 +4,33 @@ import util.Buffer;
 
 public abstract class Demodulator {
 
+    protected float[] amp;
+    protected int index = 0;
+    protected float timeStep;
+    private byte currentByte;
+
     public final Buffer buffer = new Buffer();
 
-    public abstract void calculate(float[] amp, float snr, float timeStep);
+    protected abstract void initialCalculate(float[] amp, float timeStep);
 
-    protected byte updateByte(byte currentByte, byte bitMask, boolean bit) {
-        if (bit) currentByte |= bitMask;
+    public abstract void next(float noise);
+
+    protected void updateByte(byte bitMask, boolean bit) {
+        if (bit) this.currentByte |= bitMask;
         else {
-            byte invertMask = (byte) (currentByte & bitMask);
-            currentByte ^= invertMask;
+            byte invertMask = (byte) (this.currentByte & bitMask);
+            this.currentByte ^= invertMask;
         }
 
-        return currentByte;
+        if (bitMask == (byte) 0b10000000) this.buffer.addData(this.currentByte);
+    }
+
+    public void reset() {
+        this.index = 0;
+    }
+
+    public Demodulator(float[] amp, float timeStep) {
+        this.timeStep = timeStep;
+        initialCalculate(amp, timeStep);
     }
 }

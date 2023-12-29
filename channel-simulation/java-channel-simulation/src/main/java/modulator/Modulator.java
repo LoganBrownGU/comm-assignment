@@ -9,6 +9,8 @@ public abstract class Modulator {
 
     public abstract float[] calculate(byte[] data, float timeStep);
 
+    public abstract float getRMS();
+
     public Modulator(float carrierFrequency, float modulationFrequency, float carrierAmplitude) {
         this.carrierFrequency = carrierFrequency;
         this.modulationFrequency = modulationFrequency;

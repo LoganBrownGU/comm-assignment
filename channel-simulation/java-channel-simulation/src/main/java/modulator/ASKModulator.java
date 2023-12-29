@@ -30,6 +30,11 @@ public class ASKModulator extends Modulator {
         return amp;
     }
 
+    @Override
+    public float getRMS() {
+        return (float) (this.carrierAmplitude / Math.sqrt(2));
+    }
+
     public ASKModulator(float carrierFrequency, float modulationFrequency, float carrierAmplitude, float depth) {
         super(carrierFrequency, modulationFrequency, carrierAmplitude);
         this.depth = depth;

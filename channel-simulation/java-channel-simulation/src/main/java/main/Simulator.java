@@ -17,18 +17,12 @@ import java.awt.image.DataBuffer;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Simulator {
 
     private static SimulatorSettings simulatorSettings;
     private static SimulatorView simulatorView;
-
-    private static class SimulationController implements Runnable {
-        @Override
-        public void run() {
-
-        }
-    }
 
     private static byte[] readImages(String path, int nImages) {
         ArrayList<Byte> data = new ArrayList<>();
@@ -81,7 +75,6 @@ public class Simulator {
         String path = "../assets/frames";
         byte[] data = readImages(path, 10);
         Dimension imageSize = readImageSize(path);
-        Demodulator demodulator = ModulatorFactory.getDemodulator(modulator);
         float timeStep = 0.000001f;
         float snr = 12;
 
@@ -91,11 +84,13 @@ public class Simulator {
         for (float t = 0, i = 0; i < dataItems.length; t += timeStep, i++) dataItems[(int) i] = new XYDataItem(t, amp[(int) i]);
         Plotter.plot("test", "assets/test.png", "t", "a", new XYDataItem(1600, 900), dataItems);
         System.out.println("demodulating...");
-        demodulator.calculate(amp, snr, timeStep);
+        Demodulator demodulator = ModulatorFactory.getDemodulator(modulator, amp, timeStep);
 
         //simulatorSettings.dispose();
 
-        simulatorView = new SimulatorView(modulator, demodulator, imageSize, 25);
+        SimulationController controller = new SimulationController(timeStep, amp, demodulator);
+
+        simulatorView = new SimulatorView(controller, modulator, demodulator, imageSize, 25);
         simulatorView.run();
 
         synchronized (simulatorView.lock) {
