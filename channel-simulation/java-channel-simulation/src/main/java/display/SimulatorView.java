@@ -20,8 +20,9 @@ public class SimulatorView extends Frame implements Runnable {
     private final TextField snrDisplay = new TextField();
     private final int updatePeriod; // milliseconds
     private final SimulationController controller;
+    private final int framesToPlay;
 
-    private boolean playing = true, finished;
+    private boolean finished = false;
     private Modulator modulator;
     private Demodulator demodulator;
 
@@ -96,9 +97,15 @@ public class SimulatorView extends Frame implements Runnable {
     @Override
     public void run() {
         init();
+        int frame = 0;
 
-        while (!this.finished && this.playing) {
+        while (!this.finished) {
+
             try {
+                if (++frame == this.framesToPlay) {
+                    frame = 0;
+                    this.controller.resume();
+                }
                 this.inputDisplay.paint();
                 this.outputDisplay.paint();
                 Thread.sleep(this.updatePeriod);
@@ -112,24 +119,18 @@ public class SimulatorView extends Frame implements Runnable {
         this.modulator = modulator;
     }
 
-    public SimulatorView(SimulationController controller, Modulator modulator, Demodulator demodulator, Dimension imageSize, int framerate) throws HeadlessException {
+    public SimulatorView(SimulationController controller, Modulator modulator, Demodulator demodulator, Dimension imageSize, int framerate, int framesToPlay) throws HeadlessException {
         super("Simulation");
         this.controller = controller;
         this.modulator = modulator;
+        this.demodulator = demodulator;
         this.inputDisplay = new ImageDisplay(modulator.buffer, imageSize.width, imageSize.height);
         this.outputDisplay = new ImageDisplay(demodulator.buffer, imageSize.width, imageSize.height);
         this.updatePeriod = 1000 / framerate;
+        this.framesToPlay = framesToPlay;
     }
 
     public boolean isFinished() {
         return this.finished;
-    }
-
-    public boolean isPlaying() {
-        return this.playing;
-    }
-
-    public int getSNR() {
-        return this.snrSlider.getValue();
     }
 }

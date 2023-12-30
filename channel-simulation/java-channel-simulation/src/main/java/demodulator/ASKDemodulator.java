@@ -5,15 +5,13 @@ import org.jfree.data.xy.XYDataItem;
 public class ASKDemodulator extends Demodulator {
 
     private final float depth, amplitude, modulationPeriod;
-    private float maxAmp;       // max amplitude for this bit frame
-    private int transitions;    // no. bit transitions
+    private float maxAmp = 0;       // max amplitude for this bit frame
+    private int transitions = 0;    // no. bit transitions
     private byte bitMask = 0x01;
-    public XYDataItem[] data;
 
     @Override
     public void initialCalculate(float[] amp, float timeStep) {
         this.amp = amp;
-        this.data = new XYDataItem[10000];
     }
 
     @Override
@@ -25,7 +23,6 @@ public class ASKDemodulator extends Demodulator {
         int frame = (int) (time / this.modulationPeriod);
 
         if (this.transitions != frame) {
-            if (transitions > 1000 && transitions < 1030) System.out.println(time);
             updateByte(this.bitMask, this.maxAmp > this.amplitude * (1 - this.depth/2));
 
             this.maxAmp = 0;
@@ -43,5 +40,11 @@ public class ASKDemodulator extends Demodulator {
         this.depth = depth;
         this.amplitude = amplitude;
         this.modulationPeriod = 1f / modulationFrequency;
+    }
+
+    public void reset() {
+        this.index = 0;
+        this.bitMask = 0x01;
+        this.transitions = 0;
     }
 }
