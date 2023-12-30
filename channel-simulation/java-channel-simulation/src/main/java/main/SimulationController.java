@@ -6,7 +6,6 @@ import java.time.Duration;
 import java.util.Random;
 
 public class SimulationController implements Runnable {
-    private final Random rd = new Random();
     private final float timeStep;
     private final float[] amp;
     private boolean interrupted = false;
@@ -15,15 +14,17 @@ public class SimulationController implements Runnable {
 
     @Override
     public void run() {
+        Random rd = new Random();
+        Duration sleepTime = Duration.ofNanos((long) (1_000_000_000 * this.timeStep));
 
         for (int i = 0; i < this.amp.length && !this.interrupted; i++) {
-            this.demodulator.next(this.noiseRMS);
+            this.demodulator.next((float) (rd.nextGaussian() * this.noiseRMS));
 
-            try {
-                Thread.sleep(Duration.ofNanos((long) (1_000_000_000 * this.timeStep)));
+            /*try {
+                Thread.sleep(sleepTime);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
-            }
+            }*/
         }
     }
 

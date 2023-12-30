@@ -75,7 +75,7 @@ public class Simulator {
         String path = "../assets/frames";
         byte[] data = readImages(path, 10);
         Dimension imageSize = readImageSize(path);
-        float timeStep = 0.000001f;
+        float timeStep = 0.00001f;
         float snr = 12;
 
         System.out.println("modulating...");
@@ -89,13 +89,20 @@ public class Simulator {
         //simulatorSettings.dispose();
 
         SimulationController controller = new SimulationController(timeStep, amp, demodulator);
+        Thread controllerThread = new Thread(controller);
+        controllerThread.start();
 
-        simulatorView = new SimulatorView(controller, modulator, demodulator, imageSize, 25);
+        simulatorView = new SimulatorView(controller, modulator, demodulator, imageSize, 17);
         simulatorView.run();
 
         synchronized (simulatorView.lock) {
             while (!simulatorView.isFinished()) simulatorView.lock.wait();
         }
+        controller.interrupt();
+        controllerThread.join();
         simulatorView.dispose();
+
+        XYDataItem[] xydata = ((ASKDemodulator) demodulator).data;
+        Plotter.plot("demodulator", "assets/demod.png", "t", "a", new XYDataItem(1600, 900), xydata);
     }
 }

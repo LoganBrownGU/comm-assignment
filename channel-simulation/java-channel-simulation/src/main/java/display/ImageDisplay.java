@@ -10,6 +10,7 @@ public class ImageDisplay extends Canvas {
     private final Buffer dataBuffer;
 
     private Dimension pixelSize;
+    int count = 0;
 
     public void paint() {
         if (this.g == null) this.g = (Graphics2D) this.getGraphics();
@@ -19,7 +20,9 @@ public class ImageDisplay extends Canvas {
         for (int vert = 0; vert < this.imageHeight; vert++) {
             for (int hor = 0; hor < this.imageWidth; hor++) {
                 byte[] rgb = this.dataBuffer.getChunk(3);
-                this.dataBuffer.addData(rgb);
+                if (count++ < 3) {
+                    System.out.println(Integer.toBinaryString(rgb[2] & 0xFF) + " " + Integer.toBinaryString(rgb[1]& 0xFF) + " " + Integer.toBinaryString(rgb[0]& 0xFF));
+                }
                 this.g.setColor(new Color(Byte.toUnsignedInt(rgb[2]), Byte.toUnsignedInt(rgb[1]), Byte.toUnsignedInt(rgb[0])));
                 this.g.fillRect(hor * this.pixelSize.width, vert * this.pixelSize.height, this.pixelSize.width, this.pixelSize.height);
             }

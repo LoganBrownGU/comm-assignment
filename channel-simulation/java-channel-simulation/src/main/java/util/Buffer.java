@@ -24,6 +24,7 @@ public class Buffer {
 
             byte[] chunk = new byte[size];
             for (int i = 0; i < size; i++) chunk[i] = this.contents.remove(0);
+            this.notifyAll();
             return chunk;
         }
     }
