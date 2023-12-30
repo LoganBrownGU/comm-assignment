@@ -100,11 +100,13 @@ public class SimulatorView extends Frame implements Runnable {
         int frame = 0;
 
         while (!this.finished) {
-
             try {
                 if (++frame == this.framesToPlay) {
                     frame = 0;
+                    this.modulator.buffer.clear();
+                    this.demodulator.buffer.clear();
                     this.controller.resume();
+                    continue;
                 }
                 this.inputDisplay.paint();
                 this.outputDisplay.paint();

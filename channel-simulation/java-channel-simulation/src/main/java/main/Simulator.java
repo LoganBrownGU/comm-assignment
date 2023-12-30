@@ -17,6 +17,7 @@ import java.awt.image.DataBuffer;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Random;
 
 public class Simulator {
@@ -39,6 +40,17 @@ public class Simulator {
         byte[] dataOut = new byte[data.size()];
         for (int i = 0; i < dataOut.length; i++) dataOut[i] = data.get(i);
         return dataOut;
+    }
+
+    private static int getNumFrames(String path) {
+        File dir = new File(path);
+        if (!dir.isDirectory()) throw new RuntimeException("path must be directory");
+
+        int n = 0;
+        for (File f : Objects.requireNonNull(dir.listFiles()))
+            if (f.toString().endsWith(".png")) n++;
+
+        return n;
     }
 
     private static Dimension readImageSize(String path) {
@@ -71,9 +83,9 @@ public class Simulator {
         Dimension imageSize = readImageSize(path);
         Demodulator demodulator = ModulatorFactory.getDemodulator(modulator);*/
 
-        int framesToPlay = 17;
-        ASKModulator modulator = new ASKModulator(10000, 5000, 1, .8f);
         String path = "../assets/frames";
+        int framesToPlay = getNumFrames(path);
+        ASKModulator modulator = new ASKModulator(10000, 5000, 1, .8f);
         byte[] data = readImages(path, framesToPlay);
         Dimension imageSize = readImageSize(path);
         float timeStep = 0.00001f;

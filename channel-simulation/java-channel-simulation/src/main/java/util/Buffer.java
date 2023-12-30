@@ -51,7 +51,14 @@ public class Buffer {
             this.notifyAll();
         }
     }
-    
+
+    public void clear() {
+        synchronized (this) {
+            this.contents.clear();
+            this.notifyAll();
+        }
+    }
+
     public boolean isEmpty() {
         return this.contents.isEmpty();
     }
