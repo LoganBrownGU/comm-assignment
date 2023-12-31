@@ -4,6 +4,7 @@ import demodulator.Demodulator;
 import display.SimulatorSettings;
 import display.SimulatorView;
 import modulator.ASKModulator;
+import modulator.Modulator;
 import modulator.ModulatorFactory;
 import org.jfree.data.xy.XYDataItem;
 import util.Plotter;
@@ -65,39 +66,26 @@ public class Simulator {
     }
 
     public static void simulate() throws InterruptedException {
-        /*simulatorSettings = new SimulatorSettings();
+        simulatorSettings = new SimulatorSettings();
         simulatorSettings.run();
         synchronized (simulatorSettings.lock) {
             while (!simulatorSettings.isFinished()) simulatorSettings.lock.wait();
         }
 
-        boolean useECC = simulatorSettings.useECC();
-        float snr = simulatorSettings.getSNR();
-        float timeStep = 0.001f;
-        Modulator modulator = simulatorSettings.getModulator();
-        String path = "../assets/frames";
-        byte[] data = readImages(path, 10);
-        Dimension imageSize = readImageSize(path);
-        Demodulator demodulator = ModulatorFactory.getDemodulator(modulator);*/
-
         String path = "../assets/frames";
         int framesToPlay = getNumFrames(path);
-        ASKModulator modulator = new ASKModulator(78000, 39000, 1, .8f);
+        Modulator modulator = simulatorSettings.getModulator();
         byte[] data = readImages(path, framesToPlay);
         Dimension imageSize = readImageSize(path);
         float timeStep = 0.000001f;
         int framerate = 25;
-        float snr = 12;
 
         System.out.println("modulating...");
         float[] amp = modulator.calculate(data, timeStep);
-        XYDataItem[] dataItems = new XYDataItem[10000];
-        for (float t = 0, i = 0; i < dataItems.length; t += timeStep, i++) dataItems[(int) i] = new XYDataItem(t, amp[(int) i]);
-        Plotter.plot("test", "assets/test.png", "t", "a", new XYDataItem(1600, 900), dataItems);
         System.out.println("demodulating...");
         Demodulator demodulator = ModulatorFactory.getDemodulator(modulator, amp, timeStep);
 
-        //simulatorSettings.dispose();
+        simulatorSettings.dispose();
 
         simulatorView = new SimulatorView(modulator, demodulator, imageSize, framerate, framesToPlay);
         Thread simulatorViewThread = new Thread(simulatorView);

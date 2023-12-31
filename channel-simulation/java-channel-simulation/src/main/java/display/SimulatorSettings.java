@@ -21,8 +21,6 @@ public class SimulatorSettings extends Frame implements Runnable {
     private final Checkbox useECCCheckBox = new Checkbox("use error coding");
     private final Button applySettingsButton = new Button("Apply");
     private final Button runSimulationButton = new Button("Simulate");
-    private final TextField snrInput = new TextField();
-    private final Label snrLabel = new Label("SNR (dB)");
     private final ArrayList<String> modulatorParameters = new ArrayList<>();
     public final Object lock = new Object();
     private final HashMap<String, Pair<Label, TextField>> parameterInputs = new HashMap<>();
@@ -75,9 +73,6 @@ public class SimulatorSettings extends Frame implements Runnable {
     private final ActionListener runSimulation = e -> {
         this.applySettings.actionPerformed(null);
         if (this.modulatorParameters.isEmpty()) return;
-        try {
-            this.snr = Float.parseFloat(this.snrInput.getText());
-        } catch (NumberFormatException nfe) { return; }
 
         synchronized (this.lock) {
             this.finished = true;
@@ -138,16 +133,6 @@ public class SimulatorSettings extends Frame implements Runnable {
         this.runSimulationButton.addActionListener(this.runSimulation);
         this.runSimulationButton.setVisible(true);
         this.add(this.runSimulationButton);
-
-        this.snrInput.setSize(PARAMS_SIZE.width / 2, PARAMS_SIZE.height);
-        this.snrInput.setLocation(PADDING.width, this.useECCCheckBox.getY() + PARAMS_SIZE.height);
-        this.snrInput.setVisible(true);
-        this.add(this.snrInput);
-
-        this.snrLabel.setSize(PARAMS_SIZE.width / 2, PARAMS_SIZE.height);
-        this.snrLabel.setLocation(PADDING.width + this.snrInput.getWidth(), this.snrInput.getY());
-        this.snrLabel.setVisible(true);
-        this.add(this.snrLabel);
 
         MenuBar menuBar = new MenuBar();
         for (ModulatorType mt : ModulatorType.values()) {
