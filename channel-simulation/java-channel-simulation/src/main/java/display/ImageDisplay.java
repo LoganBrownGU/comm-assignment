@@ -7,25 +7,24 @@ import java.awt.*;
 public class ImageDisplay extends Canvas {
     private final int imageWidth, imageHeight;
     private Graphics2D g;
-    private final Buffer dataBuffer;
 
     private Dimension pixelSize;
-    int count = 0;
 
-    public void paint() {
+    public void paint(byte[] data) {
+        if (data.length != this.imageHeight * this.imageWidth * 3) throw new IllegalArgumentException("data must contain 3 bytes");
         if (this.g == null) this.g = (Graphics2D) this.getGraphics();
 
+        int index = 0;
         for (int vert = 0; vert < this.imageHeight; vert++) {
             for (int hor = 0; hor < this.imageWidth; hor++) {
-                byte[] rgb = this.dataBuffer.getChunk(3);
-                this.g.setColor(new Color(Byte.toUnsignedInt(rgb[2]), Byte.toUnsignedInt(rgb[1]), Byte.toUnsignedInt(rgb[0])));
+                this.g.setColor(new Color(Byte.toUnsignedInt(data[index + 2]), Byte.toUnsignedInt(data[index + 1]), Byte.toUnsignedInt(data[index])));
                 this.g.fillRect(hor * this.pixelSize.width, vert * this.pixelSize.height, this.pixelSize.width, this.pixelSize.height);
+                index += 3;
             }
         }
     }
 
-    public ImageDisplay(Buffer dataBuffer, int imageWidth, int imageHeight) {
-        this.dataBuffer = dataBuffer;
+    public ImageDisplay(int imageWidth, int imageHeight) {
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
     }

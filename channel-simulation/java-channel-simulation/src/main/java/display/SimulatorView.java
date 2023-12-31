@@ -6,8 +6,6 @@ import modulator.Modulator;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -21,7 +19,7 @@ public class SimulatorView extends Frame implements Runnable {
     private final JSlider snrSlider = new JSlider();
     private final TextField snrDisplay = new TextField();
     private final int updatePeriod; // milliseconds
-    private final SimulationController controller;
+    private final SimulationController simulationController;
     private final int framesToPlay;
 
     private boolean finished = false;
@@ -53,7 +51,7 @@ public class SimulatorView extends Frame implements Runnable {
         this.snrSlider.setMaximum(maxSNR);
         this.snrSlider.addChangeListener(e -> {
             this.snrDisplay.setText(this.snrSlider.getValue() + " dB");
-            this.controller.updateSNR(this.snrSlider.getValue(), this.modulator.getRMS());
+            this.simulationController.updateSNR(this.snrSlider.getValue(), this.modulator.getRMS());
         });
         this.add(this.snrSlider);
 
@@ -84,23 +82,6 @@ public class SimulatorView extends Frame implements Runnable {
         this.snrDisplay.setText(this.snrSlider.getValue() + " dB");
         this.add(this.snrDisplay);
 
-        this.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                System.out.println("here");
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                System.out.println("here1");
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                System.out.println("here2");
-            }
-        });
-
         this.setVisible(true);
         this.addWindowListener(new WindowAdapter() {
             @Override
@@ -116,23 +97,61 @@ public class SimulatorView extends Frame implements Runnable {
     @Override
     public void run() {
         init();
-        int frame = 0;
 
-        while (!this.finished) {
-            try {
+        Thread displayController = new Thread(() -> {
+            int frame = 0;
+            while (true) {
+                byte[] data = this.modulator.buffer.getChunk(this.inputDisplay.getImageHeight() * this.inputDisplay.getImageWidth() * 3);
+                SimulatorView.this.inputDisplay.paint(data);
+                this.modulator.buffer.addData(data);
+                data = this.demodulator.buffer.getChunk(this.outputDisplay.getImageHeight() * this.outputDisplay.getImageWidth() * 3);
+                SimulatorView.this.outputDisplay.paint(data);
+                try {
+                    Thread.sleep(this.updatePeriod);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        Thread frameController = new Thread(() -> {
+            int frame = 0;
+            while (true) {
                 if (++frame == this.framesToPlay) {
                     frame = 0;
-                    this.modulator.buffer.clear();
                     this.demodulator.buffer.clear();
-                    this.controller.resume();
-                    continue;
+                    this.modulator.buffer.clear();
+                    this.simulationController.resume();
                 }
-                this.inputDisplay.paint();
-                this.outputDisplay.paint();
-                Thread.sleep(this.updatePeriod);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+
+                try {
+                    Thread.sleep(this.updatePeriod);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
+        });
+        displayController.setName("Display-Controller");
+        frameController.setName("Frame-Controller");
+        displayController.start();
+        frameController.start();
+
+        synchronized (this.lock) {
+            while (!this.finished) {
+                try {
+                    this.lock.wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        displayController.interrupt();
+        frameController.interrupt();
+        try {
+            displayController.join();
+            frameController.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -140,13 +159,13 @@ public class SimulatorView extends Frame implements Runnable {
         this.modulator = modulator;
     }
 
-    public SimulatorView(SimulationController controller, Modulator modulator, Demodulator demodulator, Dimension imageSize, int framerate, int framesToPlay) throws HeadlessException {
+    public SimulatorView(SimulationController simulationController, Modulator modulator, Demodulator demodulator, Dimension imageSize, int framerate, int framesToPlay) throws HeadlessException {
         super("Simulation");
-        this.controller = controller;
+        this.simulationController = simulationController;
         this.modulator = modulator;
         this.demodulator = demodulator;
-        this.inputDisplay = new ImageDisplay(modulator.buffer, imageSize.width, imageSize.height);
-        this.outputDisplay = new ImageDisplay(demodulator.buffer, imageSize.width, imageSize.height);
+        this.inputDisplay = new ImageDisplay(imageSize.width, imageSize.height);
+        this.outputDisplay = new ImageDisplay(imageSize.width, imageSize.height);
         this.updatePeriod = 1000 / framerate;
         this.framesToPlay = framesToPlay;
     }

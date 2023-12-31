@@ -3,6 +3,7 @@ package main;
 import demodulator.Demodulator;
 import modulator.Modulator;
 
+import java.awt.*;
 import java.time.Duration;
 import java.util.Random;
 
@@ -21,12 +22,27 @@ public class SimulationController implements Runnable {
     @Override
     public void run() {
         Random rd = new Random();
+        long waitTime = (long) (1_000_000_000f * this.timeStep);
 
         while (!this.interrupted) {
             this.demodulator.reset();
 
             for (int i = 0; i < this.amp.length && !this.interrupted; i++) {
+                long calcTime = System.nanoTime();
+
                 this.demodulator.next((float) (rd.nextGaussian() * this.noiseRMS));
+
+                /*calcTime = System.nanoTime() - calcTime;
+                long deltaTime = waitTime - calcTime;
+                if (deltaTime <= 0) continue;
+
+                long millis = deltaTime / 1_000_000;
+                int nanos = millis == 0 ? (int) deltaTime : (int) (deltaTime % millis);
+                try {
+                    Thread.sleep(millis, nanos);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }*/
             }
             if (this.interrupted) break;
 
@@ -41,13 +57,11 @@ public class SimulationController implements Runnable {
                 }
             }
             if (this.interrupted) break;
-
-            this.modulator.buffer.addData(this.rawData);
         }
     }
 
-    public SimulationController(float timeStep, float[] amp, byte[] data, Modulator modulator, Demodulator demodulator) {
-        this.timeStep = timeStep;
+    public SimulationController(int framerate, int nFrames, float[] amp, byte[] data, Modulator modulator, Demodulator demodulator) {
+        this.timeStep = (float) nFrames / (framerate * amp.length);
         this.amp = amp;
         this.modulator = modulator;
         this.demodulator = demodulator;
