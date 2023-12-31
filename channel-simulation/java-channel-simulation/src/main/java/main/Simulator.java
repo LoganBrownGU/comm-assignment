@@ -93,7 +93,7 @@ public class Simulator {
 
         simulatorSettings.dispose();
 
-        simulatorView = new SimulatorView(modulator, demodulator, imageSize, framerate, framesToPlay);
+        simulatorView = new SimulatorView(modulator, demodulator, imageSize, framerate);
         Thread simulatorViewThread = new Thread(simulatorView);
         simulatorViewThread.setName("Simulator-View-Thread");
 

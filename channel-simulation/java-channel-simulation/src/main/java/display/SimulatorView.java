@@ -20,11 +20,11 @@ public class SimulatorView extends Frame implements Runnable {
     private final Modulator modulator;
     private final Demodulator demodulator;
     private final int updatePeriod; // milliseconds
-    private final int framesToPlay;
 
     private boolean finished = false, demodulationFinished = false;
     private float noiseRMS;
 
+    // Initialise all Components, and Frame.
     private void init() {
         this.setLayout(null);
         this.setSize(1600, 900);
@@ -98,6 +98,9 @@ public class SimulatorView extends Frame implements Runnable {
         init();
 
         while (!this.finished) {
+            // When DemodulationController has finished, it will set demodulationFinished to true.
+            // Since it is possible that the demodulation buffer will be empty at the start of a new run of the GIF,
+            // it is important to check that the demodulation is finished before restarting the demodulation.
             if (this.demodulator.buffer.isEmpty() && this.demodulationFinished) {
                 this.demodulator.buffer.clear();
                 this.demodulationFinished = false;
@@ -105,8 +108,11 @@ public class SimulatorView extends Frame implements Runnable {
                     this.imageLock.notify();
                 }
             }
+
+            // Pull one frame's data from the buffer.
             byte[] data = this.modulator.buffer.getChunk(this.inputDisplay.getImageWidth() * this.inputDisplay.getImageHeight() * 3);
             this.inputDisplay.paint(data);
+            // Add the data back into the sender buffer so that the GIF loops.
             this.modulator.buffer.addData(data);
             data = this.demodulator.buffer.getChunk(this.outputDisplay.getImageWidth() * this.outputDisplay.getImageHeight() * 3);
             this.outputDisplay.paint(data);
@@ -123,14 +129,13 @@ public class SimulatorView extends Frame implements Runnable {
         this.demodulationFinished = true;
     }
 
-    public SimulatorView(Modulator modulator, Demodulator demodulator, Dimension imageSize, int framerate, int framesToPlay) throws HeadlessException {
+    public SimulatorView(Modulator modulator, Demodulator demodulator, Dimension imageSize, int framerate) throws HeadlessException {
         super("Simulation");
         this.modulator = modulator;
         this.demodulator = demodulator;
         this.inputDisplay = new ImageDisplay(imageSize.width, imageSize.height);
         this.outputDisplay = new ImageDisplay(imageSize.width, imageSize.height);
         this.updatePeriod = 1000 / framerate;
-        this.framesToPlay = framesToPlay;
     }
 
     public float getNoiseRMS() {
