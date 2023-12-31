@@ -26,4 +26,26 @@ public enum ModulatorType {
 
         return out;
     }
+
+    public static String[] getParameterDefaults(ModulatorType type) {
+        String[] defaultDefaults = Modulator.parameterDefaults;
+        String[] typeDefaults = {};
+
+        // TODO add cases for other modulators
+        switch (type) {
+            case ASK:
+                typeDefaults = ASKModulator.parameterDefaults;
+                break;
+            case FSK:
+                break;
+            case QAM:
+                break;
+        }
+
+        String[] out = new String[defaultDefaults.length + typeDefaults.length];
+        System.arraycopy(defaultDefaults, 0, out, 0, defaultDefaults.length);
+        System.arraycopy(typeDefaults, 0, out, defaultDefaults.length, typeDefaults.length);
+
+        return out;
+    }
 }

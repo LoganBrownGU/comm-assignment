@@ -4,6 +4,7 @@ public class ASKModulator extends Modulator {
 
     private final float depth;
     public static final String[] parameters = {"depth"};
+    public static final String[] parameterDefaults = {"0.8"};
 
     @Override
     public float[] calculate(byte[] data, float timeStep) {

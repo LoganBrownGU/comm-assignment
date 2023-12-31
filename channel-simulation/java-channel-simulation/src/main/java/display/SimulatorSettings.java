@@ -26,7 +26,6 @@ public class SimulatorSettings extends Frame implements Runnable {
     private final HashMap<String, Pair<Label, TextField>> parameterInputs = new HashMap<>();
     private String[] parameterNames;    // need to store names as an array to preserve ordering
     private ModulatorType chosenModulator = ModulatorType.ASK;
-    private float snr;
     private boolean finished = false;
 
     private static class ModulatorMenuItem extends MenuItem {
@@ -80,7 +79,7 @@ public class SimulatorSettings extends Frame implements Runnable {
         }
     };
 
-    private void createParamInputs(String[] parameters) {
+    private void createParamInputs(String[] parameters, String[] parameterDefaults) {
         for (Pair<Label, TextField> p : this.parameterInputs.values()) {
             this.remove(p.first);
             this.remove(p.second);
@@ -90,8 +89,11 @@ public class SimulatorSettings extends Frame implements Runnable {
         this.parameterNames = parameters;
 
         int pos = PADDING.height;
-        for (String p : parameters) {
-            Label label = new Label(p);
+        for (int i = 0; i < parameters.length; i++) {
+            String param = parameters[i];
+            String paramDefault = parameterDefaults[i];
+
+            Label label = new Label(param);
             label.setLocation(PADDING.width, pos);
             label.setSize(PARAMS_SIZE);
             this.add(label);
@@ -100,10 +102,11 @@ public class SimulatorSettings extends Frame implements Runnable {
             TextField tField = new TextField();
             tField.setLocation(PARAMS_SIZE.width + PADDING.width, pos);
             tField.setSize(PARAMS_SIZE);
+            tField.setText(paramDefault);
             this.add(tField);
             tField.setVisible(true);
 
-            this.parameterInputs.put(p, new Pair<>(label, tField));
+            this.parameterInputs.put(param, new Pair<>(label, tField));
 
             pos += PARAMS_SIZE.height;
         }
@@ -115,7 +118,8 @@ public class SimulatorSettings extends Frame implements Runnable {
         this.setSize(2 * PADDING.width + 2 * PARAMS_SIZE.width, 900);
 
         String[] parameters = ModulatorType.getParameters(this.chosenModulator);
-        createParamInputs(parameters);
+        String[] parameterDefaults = ModulatorType.getParameterDefaults(this.chosenModulator);
+        createParamInputs(parameters, parameterDefaults);
 
         this.useECCCheckBox.setSize(PARAMS_SIZE);
         this.useECCCheckBox.setLocation(PADDING.width, this.parameterInputs.size() * PARAMS_SIZE.height + 2 * PADDING.height);
@@ -139,7 +143,7 @@ public class SimulatorSettings extends Frame implements Runnable {
             ModulatorMenuItem mi = new ModulatorMenuItem(mt.name(), mt);
             mi.addActionListener(e -> {
                 this.chosenModulator = mi.getType();
-                createParamInputs(ModulatorType.getParameters(mi.getType()));
+                createParamInputs(ModulatorType.getParameters(mi.getType()), ModulatorType.getParameterDefaults(mi.getType()));
             });
 
             this.modulatorMenu.add(mi);
@@ -181,7 +185,4 @@ public class SimulatorSettings extends Frame implements Runnable {
         return this.useECCCheckBox.getState();
     }
 
-    public float getSNR() {
-        return this.snr;
-    }
 }
