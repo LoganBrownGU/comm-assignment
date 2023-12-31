@@ -11,7 +11,7 @@ public class ImageDisplay extends Canvas {
     private Dimension pixelSize;
 
     public void paint(byte[] data) {
-        if (data.length != this.imageHeight * this.imageWidth * 3) throw new IllegalArgumentException("data must contain 3 bytes");
+        if (data.length != this.imageHeight * this.imageWidth * 3) throw new IllegalArgumentException("data must contain full frame");
         if (this.g == null) this.g = (Graphics2D) this.getGraphics();
 
         int index = 0;

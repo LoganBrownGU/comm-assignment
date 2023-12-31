@@ -18,13 +18,13 @@ public class SimulatorView extends Frame implements Runnable {
     private final ImageDisplay inputDisplay, outputDisplay;
     private final JSlider snrSlider = new JSlider();
     private final TextField snrDisplay = new TextField();
+    private final Modulator modulator;
+    private final Demodulator demodulator;
     private final int updatePeriod; // milliseconds
     private final int framesToPlay;
 
     private boolean finished = false, demodulationFinished = false;
     private float noiseRMS;
-    private Modulator modulator;
-    private Demodulator demodulator;
 
     private void init() {
         this.setLayout(null);
@@ -106,10 +106,10 @@ public class SimulatorView extends Frame implements Runnable {
                     this.imageLock.notify();
                 }
             }
-            byte[] data = this.modulator.buffer.getChunk(this.inputDisplay.getImageWidth() * this.inputDisplay.getImageWidth() * 3);
+            byte[] data = this.modulator.buffer.getChunk(this.inputDisplay.getImageWidth() * this.inputDisplay.getImageHeight() * 3);
             this.inputDisplay.paint(data);
             this.modulator.buffer.addData(data);
-            data = this.demodulator.buffer.getChunk(this.outputDisplay.getImageWidth() * this.outputDisplay.getImageWidth() * 3);
+            data = this.demodulator.buffer.getChunk(this.outputDisplay.getImageWidth() * this.outputDisplay.getImageHeight() * 3);
             this.outputDisplay.paint(data);
 
             try {
