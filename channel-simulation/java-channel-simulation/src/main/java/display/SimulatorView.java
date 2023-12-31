@@ -6,6 +6,8 @@ import modulator.Modulator;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -14,7 +16,7 @@ public class SimulatorView extends Frame implements Runnable {
     public final Object lock = new Object();
     private static final Dimension IMAGE_DISPLAY_SIZE = new Dimension(700, 700);
     private static final Dimension PADDING = new Dimension(20, 60);
-    private static final int minSNR = 3, maxSNR = 240;
+    private static final int minSNR = 1, maxSNR = 240;
     private final ImageDisplay inputDisplay, outputDisplay;
     private final JSlider snrSlider = new JSlider();
     private final TextField snrDisplay = new TextField();
@@ -81,6 +83,23 @@ public class SimulatorView extends Frame implements Runnable {
         this.snrDisplay.setEditable(false);
         this.snrDisplay.setText(this.snrSlider.getValue() + " dB");
         this.add(this.snrDisplay);
+
+        this.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                System.out.println("here");
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                System.out.println("here1");
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                System.out.println("here2");
+            }
+        });
 
         this.setVisible(true);
         this.addWindowListener(new WindowAdapter() {
