@@ -1,7 +1,7 @@
 package display;
 
 import demodulator.Demodulator;
-import main.SimulationController;
+import main.DemodulationController;
 import modulator.Modulator;
 
 import javax.swing.*;
@@ -11,7 +11,7 @@ import java.awt.event.WindowEvent;
 
 public class SimulatorView extends Frame implements Runnable {
 
-    public final Object lock = new Object();
+    public final Object finishedLock = new Object(), imageLock = new Object();
     private static final Dimension IMAGE_DISPLAY_SIZE = new Dimension(700, 700);
     private static final Dimension PADDING = new Dimension(20, 60);
     private static final int minSNR = 1, maxSNR = 240;
@@ -19,10 +19,10 @@ public class SimulatorView extends Frame implements Runnable {
     private final JSlider snrSlider = new JSlider();
     private final TextField snrDisplay = new TextField();
     private final int updatePeriod; // milliseconds
-    private final SimulationController simulationController;
     private final int framesToPlay;
 
-    private boolean finished = false;
+    private boolean finished = false, demodulationFinished = false;
+    private float noiseRMS;
     private Modulator modulator;
     private Demodulator demodulator;
 
@@ -51,7 +51,7 @@ public class SimulatorView extends Frame implements Runnable {
         this.snrSlider.setMaximum(maxSNR);
         this.snrSlider.addChangeListener(e -> {
             this.snrDisplay.setText(this.snrSlider.getValue() + " dB");
-            this.simulationController.updateSNR(this.snrSlider.getValue(), this.modulator.getRMS());
+            this.noiseRMS = this.modulator.getRMS() / (float) Math.pow(10, (double) this.snrSlider.getValue() / 20);
         });
         this.add(this.snrSlider);
 
@@ -86,9 +86,9 @@ public class SimulatorView extends Frame implements Runnable {
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                synchronized (SimulatorView.this.lock) {
+                synchronized (SimulatorView.this.finishedLock) {
                     SimulatorView.this.finished = true;
-                    SimulatorView.this.lock.notifyAll();
+                    SimulatorView.this.finishedLock.notifyAll();
                 }
             }
         });
@@ -98,76 +98,44 @@ public class SimulatorView extends Frame implements Runnable {
     public void run() {
         init();
 
-        Thread displayController = new Thread(() -> {
-            int frame = 0;
-            while (true) {
-                byte[] data = this.modulator.buffer.getChunk(this.inputDisplay.getImageHeight() * this.inputDisplay.getImageWidth() * 3);
-                SimulatorView.this.inputDisplay.paint(data);
-                this.modulator.buffer.addData(data);
-                data = this.demodulator.buffer.getChunk(this.outputDisplay.getImageHeight() * this.outputDisplay.getImageWidth() * 3);
-                SimulatorView.this.outputDisplay.paint(data);
-                try {
-                    Thread.sleep(this.updatePeriod);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+        while (true) {
+            if (this.demodulator.buffer.isEmpty() && this.demodulationFinished) {
+                this.demodulator.buffer.clear();
+                this.demodulationFinished = false;
+                synchronized (this.imageLock) {
+                    this.imageLock.notify();
                 }
             }
-        });
-        Thread frameController = new Thread(() -> {
-            int frame = 0;
-            while (true) {
-                if (++frame == this.framesToPlay) {
-                    frame = 0;
-                    this.demodulator.buffer.clear();
-                    this.modulator.buffer.clear();
-                    this.simulationController.resume();
-                }
+            byte[] data = this.modulator.buffer.getChunk(this.inputDisplay.getImageWidth() * this.inputDisplay.getImageWidth() * 3);
+            this.inputDisplay.paint(data);
+            this.modulator.buffer.addData(data);
+            data = this.demodulator.buffer.getChunk(this.outputDisplay.getImageWidth() * this.outputDisplay.getImageWidth() * 3);
+            this.outputDisplay.paint(data);
 
-                try {
-                    Thread.sleep(this.updatePeriod);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+            try {
+                Thread.sleep(this.updatePeriod);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-        });
-        displayController.setName("Display-Controller");
-        frameController.setName("Frame-Controller");
-        displayController.start();
-        frameController.start();
-
-        synchronized (this.lock) {
-            while (!this.finished) {
-                try {
-                    this.lock.wait();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
-        displayController.interrupt();
-        frameController.interrupt();
-        try {
-            displayController.join();
-            frameController.join();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
     }
 
-    public void setModulator(Modulator modulator) {
-        this.modulator = modulator;
+    public void alertFinished() {
+        this.demodulationFinished = true;
     }
 
-    public SimulatorView(SimulationController simulationController, Modulator modulator, Demodulator demodulator, Dimension imageSize, int framerate, int framesToPlay) throws HeadlessException {
+    public SimulatorView(Modulator modulator, Demodulator demodulator, Dimension imageSize, int framerate, int framesToPlay) throws HeadlessException {
         super("Simulation");
-        this.simulationController = simulationController;
         this.modulator = modulator;
         this.demodulator = demodulator;
         this.inputDisplay = new ImageDisplay(imageSize.width, imageSize.height);
         this.outputDisplay = new ImageDisplay(imageSize.width, imageSize.height);
         this.updatePeriod = 1000 / framerate;
         this.framesToPlay = framesToPlay;
+    }
+
+    public float getNoiseRMS() {
+        return this.noiseRMS;
     }
 
     public boolean isFinished() {

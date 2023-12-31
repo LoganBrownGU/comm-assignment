@@ -11,7 +11,16 @@ public class Buffer {
     */
 
     private final ArrayList<Byte> contents = new ArrayList<>();
+    private final ArrayList<Observer> observers = new ArrayList<>();
     private boolean open = true;
+
+    public void registerObserver(Observer o) {
+        this.observers.add(o);
+    }
+
+    private void alertObservers() {
+        for (Observer o : this.observers) o.alert();
+    }
 
     public byte[] getChunk(int size) {
         synchronized (this) {
@@ -57,6 +66,10 @@ public class Buffer {
             this.contents.clear();
             this.notifyAll();
         }
+    }
+
+    public int getSize() {
+        return this.contents.size();
     }
 
     public boolean isEmpty() {

@@ -1,11 +1,9 @@
 package main;
 
-import demodulator.ASKDemodulator;
 import demodulator.Demodulator;
 import display.SimulatorSettings;
 import display.SimulatorView;
 import modulator.ASKModulator;
-import modulator.Modulator;
 import modulator.ModulatorFactory;
 import org.jfree.data.xy.XYDataItem;
 import util.Plotter;
@@ -18,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Random;
 
 public class Simulator {
 
@@ -102,19 +99,21 @@ public class Simulator {
 
         //simulatorSettings.dispose();
 
-        SimulationController controller = new SimulationController(framerate, framesToPlay, amp, data, modulator, demodulator);
+        simulatorView = new SimulatorView(modulator, demodulator, imageSize, framerate, framesToPlay);
+        Thread simulatorViewThread = new Thread(simulatorView);
+        simulatorViewThread.setName("Simulator-View-Thread");
+
+        DemodulationController controller = new DemodulationController(demodulator, simulatorView, framerate, framesToPlay, amp);
         Thread controllerThread = new Thread(controller);
         controllerThread.setName("Controller-Thread");
-        controllerThread.start();
 
-        simulatorView = new SimulatorView(controller, modulator, demodulator, imageSize, framerate, framesToPlay);
-        Thread simulatorViewThread = new Thread(simulatorView);
+        controllerThread.start();
         simulatorViewThread.start();
 
-        synchronized (simulatorView.lock) {
-            while (!simulatorView.isFinished()) simulatorView.lock.wait();
+        synchronized (simulatorView.finishedLock) {
+            while (!simulatorView.isFinished()) simulatorView.finishedLock.wait();
         }
-        controller.interrupt();
+        controllerThread.interrupt();
         controllerThread.join();
         simulatorView.dispose();
         simulatorViewThread.join();
