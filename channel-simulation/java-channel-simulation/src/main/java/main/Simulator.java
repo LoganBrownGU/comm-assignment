@@ -77,7 +77,8 @@ public class Simulator {
         Modulator modulator = simulatorSettings.getModulator();
         byte[] data = readImages(path, framesToPlay);
         Dimension imageSize = readImageSize(path);
-        float timeStep = 0.000001f;
+        float timeStep = 0.01f / modulator.getModulationFrequency();
+        System.out.println(timeStep);
         int framerate = 25;
 
         System.out.println("modulating...");
