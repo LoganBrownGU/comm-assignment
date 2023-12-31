@@ -1,7 +1,5 @@
 package display;
 
-import util.Buffer;
-
 import java.awt.*;
 
 public class ImageDisplay extends Canvas {

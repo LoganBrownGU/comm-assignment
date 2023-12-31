@@ -18,7 +18,6 @@ public class SimulatorSettings extends Frame implements Runnable {
     private static final Dimension PADDING = new Dimension(20, 60);
 
     private final Menu modulatorMenu = new Menu("Choose modulator...");
-    private final Checkbox useECCCheckBox = new Checkbox("use error coding");
     private final Button applySettingsButton = new Button("Apply");
     private final Button runSimulationButton = new Button("Simulate");
     private final ArrayList<String> modulatorParameters = new ArrayList<>();
@@ -123,11 +122,6 @@ public class SimulatorSettings extends Frame implements Runnable {
         String[] parameterDefaults = ModulatorType.getParameterDefaults(this.chosenModulator);
         createParamInputs(parameters, parameterDefaults);
 
-        this.useECCCheckBox.setSize(PARAMS_SIZE);
-        this.useECCCheckBox.setLocation(PADDING.width, this.parameterInputs.size() * PARAMS_SIZE.height + 2 * PADDING.height);
-        this.useECCCheckBox.setVisible(true);
-        this.add(this.useECCCheckBox);
-
         this.applySettingsButton.setSize(PARAMS_SIZE.width / 2, PARAMS_SIZE.height);
         this.applySettingsButton.setLocation(this.getWidth() - this.applySettingsButton.getWidth() - PADDING.width, this.getHeight() - this.applySettingsButton.getHeight() - PADDING.height);
         this.applySettingsButton.addActionListener(this.applySettings);
@@ -181,10 +175,6 @@ public class SimulatorSettings extends Frame implements Runnable {
 
     public ArrayList<String> getModulatorParameters() {
         return this.modulatorParameters;
-    }
-
-    public boolean useECC() {
-        return this.useECCCheckBox.getState();
     }
 
 }
