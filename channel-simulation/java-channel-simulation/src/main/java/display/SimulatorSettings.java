@@ -77,6 +77,8 @@ public class SimulatorSettings extends Frame implements Runnable {
             this.finished = true;
             this.lock.notifyAll();
         }
+
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     };
 
     private void createParamInputs(String[] parameters, String[] parameterDefaults) {
