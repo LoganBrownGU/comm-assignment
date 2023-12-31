@@ -98,7 +98,7 @@ public class SimulatorView extends Frame implements Runnable {
     public void run() {
         init();
 
-        while (true) {
+        while (!this.finished) {
             if (this.demodulator.buffer.isEmpty() && this.demodulationFinished) {
                 this.demodulator.buffer.clear();
                 this.demodulationFinished = false;

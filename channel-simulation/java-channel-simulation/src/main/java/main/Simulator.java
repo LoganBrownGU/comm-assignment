@@ -103,7 +103,7 @@ public class Simulator {
         Thread simulatorViewThread = new Thread(simulatorView);
         simulatorViewThread.setName("Simulator-View-Thread");
 
-        DemodulationController controller = new DemodulationController(demodulator, simulatorView, framerate, framesToPlay, amp);
+        DemodulationController controller = new DemodulationController(demodulator, simulatorView, amp);
         Thread controllerThread = new Thread(controller);
         controllerThread.setName("Controller-Thread");
 
@@ -117,8 +117,5 @@ public class Simulator {
         controllerThread.join();
         simulatorView.dispose();
         simulatorViewThread.join();
-
-        /*XYDataItem[] xydata = ((ASKDemodulator) demodulator).data;
-        Plotter.plot("demodulator", "assets/demod.png", "t", "a", new XYDataItem(1600, 900), xydata);*/
     }
 }

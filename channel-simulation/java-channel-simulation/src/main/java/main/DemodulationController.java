@@ -7,8 +7,6 @@ import java.util.Random;
 
 public class DemodulationController implements Runnable {
 
-    public final Object lock = new Object();
-    private final float timeStep;
     private final float[] amp;
     private final SimulatorView simulatorView;
     private final Demodulator demodulator;
@@ -16,28 +14,14 @@ public class DemodulationController implements Runnable {
     @Override
     public void run() {
         Random rd = new Random();
-        long waitTime = (long) (1_000_000_000f * this.timeStep);
+        boolean interrupted = false;
 
-        while (true) {
+        while (!interrupted) {
             this.demodulator.reset();
 
-            for (int i = 0; i < this.amp.length; i++) {
-                long calcTime = System.nanoTime();
-
+            for (int i = 0; i < this.amp.length; i++)
                 this.demodulator.next((float) (rd.nextGaussian() * this.simulatorView.getNoiseRMS()));
 
-                calcTime = System.nanoTime() - calcTime;
-                long deltaTime = waitTime - calcTime;
-                if (deltaTime <= 0) continue;
-
-                long millis = deltaTime / 1_000_000;
-                int nanos = millis == 0 ? (int) deltaTime : (int) (deltaTime % millis);
-                try {
-                    Thread.sleep(millis, nanos);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
 
             // Sometimes the demodulator won't output the final byte, so need to make sure that there's a multiple
             // of 3 bytes in the buffer.
@@ -48,14 +32,13 @@ public class DemodulationController implements Runnable {
                 try {
                     this.simulatorView.imageLock.wait();
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    interrupted = true;
                 }
             }
         }
     }
 
-    public DemodulationController(Demodulator demodulator, SimulatorView simulatorView, int framerate, int nFrames, float[] amp) {
-        this.timeStep = (float) nFrames / (framerate * amp.length);
+    public DemodulationController(Demodulator demodulator, SimulatorView simulatorView, float[] amp) {
         this.amp = amp;
         this.simulatorView = simulatorView;
         this.demodulator = demodulator;
