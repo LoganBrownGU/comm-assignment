@@ -1,7 +1,6 @@
 package display;
 
 import demodulator.Demodulator;
-import main.DemodulationController;
 import modulator.Modulator;
 
 import javax.swing.*;

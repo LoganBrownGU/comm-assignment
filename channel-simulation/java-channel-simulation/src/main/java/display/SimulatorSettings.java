@@ -23,7 +23,7 @@ public class SimulatorSettings extends Frame implements Runnable {
     private final ArrayList<String> modulatorParameters = new ArrayList<>();
     public final Object lock = new Object();
     private final HashMap<String, Pair<Label, TextField>> parameterInputs = new HashMap<>();
-    private String[] parameterNames;    // need to store names as an array to preserve ordering
+    private String[] parameterNames;    // Must store names as an array to preserve ordering, since HashMaps are unordered.
     private ModulatorType chosenModulator = ModulatorType.ASK;
     private boolean finished = false;
 
@@ -57,6 +57,7 @@ public class SimulatorSettings extends Frame implements Runnable {
 
     private final ActionListener applySettings = e -> {
         ArrayList<String> params = new ArrayList<>();
+        // Get each parameter from parameterInputs
         for (String s : this.parameterNames) {
             Pair<Label, TextField> p = this.parameterInputs.get(s);
             if (p.second.getText().isBlank() || p.second.getText().isEmpty()) return;
@@ -64,6 +65,8 @@ public class SimulatorSettings extends Frame implements Runnable {
             params.add(p.second.getText());
         }
 
+        // Wait until after all parameters have been read before adding to modulatorParameters, in case there is an
+        // empty input.
         this.modulatorParameters.clear();
         this.modulatorParameters.addAll(params);
     };
@@ -80,7 +83,9 @@ public class SimulatorSettings extends Frame implements Runnable {
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     };
 
+    // Take each parameter for the selected modulator and add them to the Frame.
     private void createParamInputs(String[] parameters, String[] parameterDefaults) {
+        // Remove old parameters.
         for (Pair<Label, TextField> p : this.parameterInputs.values()) {
             this.remove(p.first);
             this.remove(p.second);
@@ -113,6 +118,7 @@ public class SimulatorSettings extends Frame implements Runnable {
         }
     }
 
+    // Initialise all Components, and Frame.
     private void init() {
         this.setLayout(null);
         this.setResizable(false);
@@ -167,14 +173,6 @@ public class SimulatorSettings extends Frame implements Runnable {
 
     public boolean isFinished() {
         return this.finished;
-    }
-
-    public ModulatorType getChosenModulator() {
-        return this.chosenModulator;
-    }
-
-    public ArrayList<String> getModulatorParameters() {
-        return this.modulatorParameters;
     }
 
 }
