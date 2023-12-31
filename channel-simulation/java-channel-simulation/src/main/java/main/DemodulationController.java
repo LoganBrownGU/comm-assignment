@@ -27,7 +27,9 @@ public class DemodulationController implements Runnable {
             // of 3 bytes in the buffer.
             for (int i = 0; i < this.demodulator.buffer.getSize() % 3; i++) this.demodulator.buffer.addData((byte) 0x00);
 
+            // Tell the simulator window that the demodulation has finished.
             this.simulatorView.alertFinished();
+            // Wait for the simulator to finish the frame.
             synchronized (this.simulatorView.imageLock) {
                 try {
                     this.simulatorView.imageLock.wait();

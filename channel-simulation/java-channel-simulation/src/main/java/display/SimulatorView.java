@@ -24,6 +24,8 @@ public class SimulatorView extends Frame implements Runnable {
     private boolean finished = false, demodulationFinished = false;
     private float noiseRMS;
 
+    // todo move changeListeners out of init
+
     // Initialise all Components, and Frame.
     private void init() {
         this.setLayout(null);

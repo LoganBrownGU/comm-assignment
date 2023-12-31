@@ -68,7 +68,7 @@ public class Simulator {
         return new Dimension(width, height);
     }
 
-    public static void simulate() throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
         simulatorSettings = new SimulatorSettings();
         simulatorSettings.run();
         // Wait for simulator settings to finish.
