@@ -18,12 +18,12 @@ public class ASKDemodulator extends Demodulator {
     // Noise is the actual random gaussian value, not the noise RMS, or SNR.
     @Override
     public void next(float noise) {
-        float time = this.timeStep * this.index;
+        float t = this.timeStep * this.index;
         float f = this.amp[this.index] + noise;
 
         this.maxAmp = Math.max(f, this.maxAmp);
         // Get the  current bit frame, i.e. the index of the current bit being received.
-        int frame = (int) (time / this.modulationPeriod);
+        int frame = (int) (t / this.modulationPeriod);
 
         // If the number of bit frame transitions does not equal the current frame, then move to the next frame.
         if (this.transitions != frame) {

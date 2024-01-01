@@ -1,27 +1,34 @@
 package modulator;
 
 public class ASKModulator extends Modulator {
+    // todo rename all "amp" to "samples"
 
     private final float depth;
+    // Additional parameters for ASK
     public static final String[] parameters = {"depth"};
     public static final String[] parameterDefaults = {"0.8"};
 
     @Override
     public float[] calculate(byte[] data, float timeStep) {
+        // Amount of time each bit is transmitted for.
         float bitPeriod = 1f / this.modulationFrequency;
         float endTime = bitPeriod * data.length * 8;
+        // Allocate array to store samples in.
         float[] amp = new float[(int) (endTime / timeStep)];
 
         for (int i = 0; i < amp.length; i++) {
             float t = i * timeStep;
+            // Find index of current bit being sent
             int bitFrame = (int) (t / bitPeriod);
-            // select the byte
-            int bitIndex = bitFrame / 8;
-            if (bitIndex == data.length) break;
+            // Find index of current byte being sent
+            int byteIndex = bitFrame / 8;
+            // An odd modulation frequency can often cause an index out of bounds error, so break if the byteIndex would
+            // cause one.
+            if (byteIndex == data.length) break;
 
-            // select the bit in the byte
+            // Select the bit in the byte
             byte bitMask = (byte) (0b00000001 << (bitFrame % 8));
-            boolean bit = (bitMask & data[bitIndex]) != 0;
+            boolean bit = (bitMask & data[byteIndex]) != 0;
 
             amp[i] = (float) (this.carrierAmplitude * Math.sin(2 * Math.PI * t * this.carrierFrequency) * (bit ? 1 : 1 - this.depth));
         }

@@ -4,46 +4,26 @@ import java.util.ArrayList;
 
 public class Buffer {
     /*
-    * Thread safe buffer.
-    * Multiple threads can attempt to access this buffer at the same time.
-    * If a thread tries to pull more data out of the buffer than the buffer contains, the thread will be halted until
+      Thread safe buffer.
+      Multiple threads can attempt to access this buffer at the same time.
+      If a thread tries to pull more data out of the buffer than the buffer contains, the thread will be halted until
       the buffer contains enough data.
     */
 
     private final ArrayList<Byte> contents = new ArrayList<>();
-    private final ArrayList<Observer> observers = new ArrayList<>();
-    private boolean open = true;
-
-    public void registerObserver(Observer o) {
-        this.observers.add(o);
-    }
-
-    private void alertObservers() {
-        for (Observer o : this.observers) o.alert();
-    }
 
     public byte[] getChunk(int size) {
         synchronized (this) {
-            while (this.contents.size() < size && this.open) {
+            while (this.contents.size() < size) {
                 try {
                     this.wait();
                 } catch (InterruptedException e) { throw new RuntimeException(e); }
             }
-            if (!this.open) return null;
 
             byte[] chunk = new byte[size];
             for (int i = 0; i < size; i++) chunk[i] = this.contents.remove(0);
             this.notifyAll();
             return chunk;
-        }
-    }
-
-    public byte getByte() throws InterruptedException {
-        synchronized (this) {
-            while (this.contents.isEmpty() && this.open) this.wait();
-            if (!this.open) return (byte) 0xFF;
-
-            return this.contents.remove(0);
         }
     }
 
@@ -76,11 +56,4 @@ public class Buffer {
         return this.contents.isEmpty();
     }
 
-    public void close() {
-        this.open = false;
-    }
-
-    public boolean isClosed() {
-        return !this.open;
-    }
 }
