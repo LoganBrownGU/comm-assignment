@@ -20,6 +20,9 @@ public class ModulatorFactory {
         if (modulator instanceof ASKModulator) {
             ASKModulator ask = (ASKModulator) modulator;
             return new ASKDemodulator(samples, timeStep, ask.getDepth(), ask.getCarrierAmplitude(), ask.getModulationFrequency());
+        } else if (modulator instanceof QAMModulator) {
+            QAMModulator qam = (QAMModulator) modulator;
+            // todo return new qamdemodulator
         }
 
         return null;

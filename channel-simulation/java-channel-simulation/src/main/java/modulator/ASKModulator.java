@@ -14,9 +14,9 @@ public class ASKModulator extends Modulator {
         float bitPeriod = 1f / this.modulationFrequency;
         float endTime = bitPeriod * data.length * 8;
         // Allocate array to store samples in.
-        float[] amp = new float[(int) (endTime / timeStep)];
+        float[] samples = new float[(int) (endTime / timeStep)];
 
-        for (int i = 0; i < amp.length; i++) {
+        for (int i = 0; i < samples.length; i++) {
             float t = i * timeStep;
             // Find index of current bit being sent
             int bitFrame = (int) (t / bitPeriod);
@@ -30,12 +30,12 @@ public class ASKModulator extends Modulator {
             byte bitMask = (byte) (0b00000001 << (bitFrame % 8));
             boolean bit = (bitMask & data[byteIndex]) != 0;
 
-            amp[i] = (float) (this.carrierAmplitude * Math.sin(2 * Math.PI * t * this.carrierFrequency) * (bit ? 1 : 1 - this.depth));
+            samples[i] = (float) (this.carrierAmplitude * Math.sin(2 * Math.PI * t * this.carrierFrequency) * (bit ? 1 : 1 - this.depth));
         }
 
         this.buffer.addData(data);
 
-        return amp;
+        return samples;
     }
 
     @Override

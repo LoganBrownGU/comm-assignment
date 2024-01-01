@@ -17,7 +17,7 @@ public enum ModulatorType {
             case FSK:
                 break;
             case QAM:
-                break;
+                typeParams = QAMModulator.parameters;
         }
 
         String[] out = new String[defaultParams.length + typeParams.length];
@@ -39,6 +39,7 @@ public enum ModulatorType {
             case FSK:
                 break;
             case QAM:
+                typeDefaults = QAMModulator.parameterDefaults;
                 break;
         }
 
