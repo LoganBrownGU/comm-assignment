@@ -1,5 +1,7 @@
 package modulator;
 
+import util.Maths;
+
 public class QAMModulator extends Modulator {
 
     private final float order;
@@ -17,14 +19,14 @@ public class QAMModulator extends Modulator {
 
     @Override
     public float[] calculate(byte[] data, float timeStep) {
-        float symbolFrequency = 1f / this.modulationFrequency;
+        float symbolPeriod = 1f / this.modulationFrequency;
         int bitsPerSymbol = (int) (Math.log(this.order) / Math.log(2));
-        float endTime = data.length * 8 * (symbolFrequency / bitsPerSymbol);
+        float endTime = data.length * 8 * (symbolPeriod / bitsPerSymbol);
         int levels = (int) Math.sqrt(bitsPerSymbol);
 
         // Convert array of bytes into array of bits
         boolean[] bits = new boolean[data.length * 8];
-        for (int i = 0; i < bits.length; i++) {
+        for (int i = 0; i < bits.length-1; i++) {
             byte b = data[i/8];
             byte bitMask = (byte) (0x01 << (i % 8));
             bits[i] = (b & bitMask) != 0;
@@ -34,9 +36,12 @@ public class QAMModulator extends Modulator {
         for (int i = 0; i < samples.length; i++) {
             float t = i * timeStep;
             // Find index of current symbol being sent.
-            int symbolFrame = (int) (t / symbolFrequency);
+            int symbolFrame = (int) (t / symbolPeriod);
             // Find index of first bit in symbol.
             int bitIndex = symbolFrame * bitsPerSymbol;
+            // Floating point arithmetic often causes the sample count to be slightly too long, so break if the byteIndex
+            // would cause an index out of bounds error.
+            if (bitIndex + bitsPerSymbol >= bits.length) break;
 
             // Construct symbol to be sent from bit array.
             int symbol = 0;
@@ -48,7 +53,7 @@ public class QAMModulator extends Modulator {
             if (symbol % 2 == 0)    f = inphase(t);
             else                    f = quadrature(t);
 
-            f *= this.carrierAmplitude / (float) (levels / (symbol / 2));
+            f *= (this.carrierAmplitude / levels) * Maths.log2(symbol / 2);
             samples[i] = f;
         }
 

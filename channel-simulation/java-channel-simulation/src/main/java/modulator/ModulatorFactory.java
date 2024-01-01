@@ -16,6 +16,15 @@ public class ModulatorFactory {
         return new ASKModulator(carrierFrequency, modulationFrequency, carrierAmplitude, depth);
     }
 
+    public static QAMModulator createQAMModulator(ArrayList<String> parameters) {
+        float carrierFrequency = Float.parseFloat(parameters.get(0));
+        float modulationFrequency = Float.parseFloat(parameters.get(1));
+        float carrierAmplitude = Float.parseFloat(parameters.get(2));
+        float order = Integer.parseInt(parameters.get(3));
+
+        return new QAMModulator(carrierFrequency, modulationFrequency, carrierAmplitude, order);
+    }
+
     public static Demodulator getDemodulator(Modulator modulator, float[] samples, float timeStep) {
         if (modulator instanceof ASKModulator) {
             ASKModulator ask = (ASKModulator) modulator;

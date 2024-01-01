@@ -22,8 +22,8 @@ public class ASKModulator extends Modulator {
             int bitFrame = (int) (t / bitPeriod);
             // Find index of current byte being sent
             int byteIndex = bitFrame / 8;
-            // An odd modulation frequency can often cause an index out of bounds error, so break if the byteIndex would
-            // cause one.
+            // Floating point arithmetic often causes the sample count to be slightly too long, so break if the byteIndex
+            // would cause an index out of bounds error.
             if (byteIndex == data.length) break;
 
             // Select the bit in the byte

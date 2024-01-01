@@ -24,7 +24,7 @@ public class SimulatorSettings extends Frame implements Runnable {
     public final Object lock = new Object();
     private final HashMap<String, Pair<Label, TextField>> parameterInputs = new HashMap<>();
     private String[] parameterNames;    // Must store names as an array to preserve ordering, since HashMaps are unordered.
-    private ModulatorType chosenModulator = ModulatorType.ASK;
+    private ModulatorType chosenModulator = ModulatorType.QAM;
     private boolean finished = false;
 
     private static class ModulatorMenuItem extends MenuItem {
@@ -49,7 +49,7 @@ public class SimulatorSettings extends Frame implements Runnable {
             case FSK:
                 break;
             case QAM:
-                break;
+                return ModulatorFactory.createQAMModulator(this.modulatorParameters);
         }
 
         return null;
