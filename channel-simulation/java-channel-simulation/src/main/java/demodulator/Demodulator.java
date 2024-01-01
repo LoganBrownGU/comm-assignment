@@ -4,14 +4,14 @@ import util.Buffer;
 
 public abstract class Demodulator {
 
-    protected float[] amp;
+    protected float[] samples;
     protected int index = 0;
     protected float timeStep;
     private byte currentByte;
 
     public final Buffer buffer = new Buffer();
 
-    protected abstract void initialCalculate(float[] amp, float timeStep);
+    protected abstract void initialCalculate(float[] samples, float timeStep);
 
     public abstract void next(float noise);
 
@@ -48,8 +48,8 @@ public abstract class Demodulator {
         this.index = 0;
     }
 
-    public Demodulator(float[] amp, float timeStep) {
+    public Demodulator(float[] samples, float timeStep) {
         this.timeStep = timeStep;
-        initialCalculate(amp, timeStep);
+        initialCalculate(samples, timeStep);
     }
 }

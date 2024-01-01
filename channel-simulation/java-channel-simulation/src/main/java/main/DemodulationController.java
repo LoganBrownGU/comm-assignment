@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class DemodulationController implements Runnable {
 
-    private final float[] amp;
+    private final float[] samples;
     private final SimulatorView simulatorView;
     private final Demodulator demodulator;
 
@@ -19,7 +19,7 @@ public class DemodulationController implements Runnable {
         while (!interrupted) {
             this.demodulator.reset();
 
-            for (int i = 0; i < this.amp.length; i++)
+            for (int i = 0; i < this.samples.length; i++)
                 this.demodulator.next((float) (rd.nextGaussian() * this.simulatorView.getNoiseRMS()));
 
 
@@ -40,8 +40,8 @@ public class DemodulationController implements Runnable {
         }
     }
 
-    public DemodulationController(Demodulator demodulator, SimulatorView simulatorView, float[] amp) {
-        this.amp = amp;
+    public DemodulationController(Demodulator demodulator, SimulatorView simulatorView, float[] samples) {
+        this.samples = samples;
         this.simulatorView = simulatorView;
         this.demodulator = demodulator;
     }

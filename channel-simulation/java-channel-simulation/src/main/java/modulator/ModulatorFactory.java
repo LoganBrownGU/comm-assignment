@@ -16,10 +16,10 @@ public class ModulatorFactory {
         return new ASKModulator(carrierFrequency, modulationFrequency, carrierAmplitude, depth);
     }
 
-    public static Demodulator getDemodulator(Modulator modulator, float[] amp, float timeStep) {
+    public static Demodulator getDemodulator(Modulator modulator, float[] samples, float timeStep) {
         if (modulator instanceof ASKModulator) {
             ASKModulator ask = (ASKModulator) modulator;
-            return new ASKDemodulator(amp, timeStep, ask.getDepth(), ask.getCarrierAmplitude(), ask.getModulationFrequency());
+            return new ASKDemodulator(samples, timeStep, ask.getDepth(), ask.getCarrierAmplitude(), ask.getModulationFrequency());
         }
 
         return null;

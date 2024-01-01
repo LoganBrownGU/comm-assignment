@@ -10,8 +10,8 @@ public class ASKDemodulator extends Demodulator {
                                     // then bitMask = 0000 0100
 
     @Override
-    public void initialCalculate(float[] amp, float timeStep) {
-        this.amp = amp;
+    public void initialCalculate(float[] samples, float timeStep) {
+        this.samples = samples;
     }
 
 
@@ -19,7 +19,7 @@ public class ASKDemodulator extends Demodulator {
     @Override
     public void next(float noise) {
         float t = this.timeStep * this.index;
-        float f = this.amp[this.index] + noise;
+        float f = this.samples[this.index] + noise;
 
         this.maxAmp = Math.max(f, this.maxAmp);
         // Get the  current bit frame, i.e. the index of the current bit being received.
@@ -44,8 +44,8 @@ public class ASKDemodulator extends Demodulator {
         this.index++;
     }
 
-    public ASKDemodulator(float[] amp, float timeStep, float depth, float amplitude, float modulationFrequency) {
-        super(amp, timeStep);
+    public ASKDemodulator(float[] samples, float timeStep, float depth, float amplitude, float modulationFrequency) {
+        super(samples, timeStep);
         this.depth = depth;
         this.amplitude = amplitude;
         this.modulationPeriod = 1f / modulationFrequency;
