@@ -51,6 +51,7 @@ public class ASKDemodulator extends Demodulator {
         this.modulationPeriod = 1f / modulationFrequency;
     }
 
+    @Override
     public void reset() {
         super.reset();
         this.bitMask = 0b0000_0001;
