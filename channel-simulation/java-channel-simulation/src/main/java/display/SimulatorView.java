@@ -17,6 +17,7 @@ public class SimulatorView extends Frame implements Runnable {
     private final ImageDisplay inputDisplay, outputDisplay;
     private final JSlider snrSlider = new JSlider();
     private final TextField snrDisplay = new TextField();
+    private final TextField berDisplay = new TextField();
     private final Modulator modulator;
     private final Demodulator demodulator;
     private final int updatePeriod; // milliseconds
@@ -25,6 +26,23 @@ public class SimulatorView extends Frame implements Runnable {
     private float noiseRMS;
 
     // todo move changeListeners out of init
+
+    private float findBER(byte[] input, byte[] output) {
+        if (output.length != input.length) throw new IllegalArgumentException("input data must be same size as output data");
+
+        int errors = 0;
+        for (int i = 0; i < input.length; i++) {
+            byte in = input[i];
+            byte out = output[i];
+            for (int j = 0; j < 8; j++) {
+                if ((in & 0x01) != (out & 0x01)) errors++;
+                in >>= 1; out >>= 1;
+            }
+        }
+
+        int decPlaces = 3;
+        return (float) (Math.round(Math.pow(10, decPlaces) * errors / (input.length * 8)) / Math.pow(10, decPlaces));
+    }
 
     // Initialise all Components, and Frame.
     private void init() {
@@ -83,6 +101,12 @@ public class SimulatorView extends Frame implements Runnable {
         this.snrDisplay.setText(this.snrSlider.getValue() + " dB");
         this.add(this.snrDisplay);
 
+        this.berDisplay.setSize(sliderLabelSize);
+        this.berDisplay.setLocation(this.getWidth() - this.berDisplay.getWidth(), this.outputDisplay.getY() + this.outputDisplay.getHeight());
+        this.berDisplay.setEditable(false);
+        this.berDisplay.setVisible(true);
+        this.add(this.berDisplay);
+
         this.setVisible(true);
         this.addWindowListener(new WindowAdapter() {
             @Override
@@ -112,12 +136,13 @@ public class SimulatorView extends Frame implements Runnable {
             }
 
             // Pull one frame's data from the buffer.
-            byte[] data = this.modulator.buffer.getChunk(this.inputDisplay.getImageWidth() * this.inputDisplay.getImageHeight() * 3);
-            this.inputDisplay.paint(data);
+            byte[] inputData = this.modulator.buffer.getChunk(this.inputDisplay.getImageWidth() * this.inputDisplay.getImageHeight() * 3);
+            this.inputDisplay.paint(inputData);
             // Add the data back into the sender buffer so that the GIF loops.
-            this.modulator.buffer.addData(data);
-            data = this.demodulator.buffer.getChunk(this.outputDisplay.getImageWidth() * this.outputDisplay.getImageHeight() * 3);
-            this.outputDisplay.paint(data);
+            this.modulator.buffer.addData(inputData);
+            byte[] outputData = this.demodulator.buffer.getChunk(this.outputDisplay.getImageWidth() * this.outputDisplay.getImageHeight() * 3);
+            this.outputDisplay.paint(outputData);
+            this.berDisplay.setText(Float.toString(findBER(inputData, outputData)));
 
             try {
                 Thread.sleep(this.updatePeriod);

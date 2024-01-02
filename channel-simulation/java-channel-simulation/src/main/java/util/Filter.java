@@ -8,7 +8,7 @@ public class Filter {
     }
 
     public void filter(float[] samples) {
-        samples
+
     }
 
     public Filter(int highCutoff, int lowCutoff) {
