@@ -1,9 +1,11 @@
 package demodulator;
 
+import util.Maths;
+
 public class QAMDemodulator extends Demodulator {
 
     private final float carrierAmplitude, carrierFrequency, symbolPeriod, order;
-    private final int samplesPerSymbolPeriod;
+    private final int samplesPerSymbolPeriod, levels, bitsPerSymbol;
 
     private float sumAmpI = 0;
     private float sumAmpQ = 0;
@@ -42,8 +44,6 @@ public class QAMDemodulator extends Demodulator {
     public void next(float noise) {
         float t = this.index * this.timeStep;
         float f = this.samples[this.index] + noise;
-        int bitsPerSymbol = (int) (Math.log(this.order) / Math.log(2));
-        int levels = (int) Math.sqrt(bitsPerSymbol);
 
         float aI = f * localOscillatorI(t);
         float aQ = f * localOscillatorQ(t);
@@ -58,22 +58,25 @@ public class QAMDemodulator extends Demodulator {
         int frame = (int) (t / this.symbolPeriod);
         if (this.transitions != frame) {
             this.transitions++;
-            byte val = getVal(levels, bitsPerSymbol);
+            byte val = getVal(this.levels, this.bitsPerSymbol);
 
-            this.current8Bytes <<= bitsPerSymbol;
+            this.current8Bytes <<= this.bitsPerSymbol;
             this.current8Bytes |= val;
 
             // For simplicity assume that bitsPerSymbol is either a multiple or exact divisor of 8, up to 64.
             // todo enforce this in simulatorsettings
-            if (bitsPerSymbol <= 8 && this.transitions * bitsPerSymbol == 8) {
-                this.buffer.addData((byte) (this.current8Bytes));
-            } else if (bitsPerSymbol > 8) {
-                long bitMask = 0xFFL << bitsPerSymbol;
-                for (int i = 0; i < bitsPerSymbol / 8; i++) {
-                    this.buffer.addData((byte) ((this.current8Bytes & bitMask) >> bitsPerSymbol));
+            if (this.bitsPerSymbol <= 8 && (this.transitions * this.bitsPerSymbol) % 8 == 0) {
+                this.buffer.addData((byte) this.current8Bytes);
+            } else if (this.bitsPerSymbol > 8) {
+                long bitMask = 0xFFL << this.bitsPerSymbol;
+                for (int i = 0; i < this.bitsPerSymbol / 8; i++) {
+                    this.buffer.addData((byte) ((this.current8Bytes & bitMask) >> this.bitsPerSymbol));
                     this.current8Bytes >>= 8;
                 }
             }
+
+            this.sumAmpI = 0;
+            this.sumAmpQ = 0;
         }
 
         this.index++;
@@ -86,6 +89,8 @@ public class QAMDemodulator extends Demodulator {
         this.symbolPeriod = 1f / modulationFrequency;
         this.order = order;
         this.samplesPerSymbolPeriod = (int) (this.symbolPeriod / timeStep);
+        this.bitsPerSymbol = (int) Maths.log2(this.order);
+        this.levels = (int) Math.sqrt(this.bitsPerSymbol);
     }
 
     @Override

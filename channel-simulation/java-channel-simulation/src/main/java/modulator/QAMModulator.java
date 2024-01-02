@@ -20,7 +20,7 @@ public class QAMModulator extends Modulator {
     @Override
     public float[] calculate(byte[] data, float timeStep) {
         float symbolPeriod = 1f / this.modulationFrequency;
-        int bitsPerSymbol = (int) (Math.log(this.order) / Math.log(2));
+        int bitsPerSymbol = (int) Maths.log2(this.order);
         float endTime = data.length * 8 * (symbolPeriod / bitsPerSymbol);
         int levels = (int) Math.sqrt(bitsPerSymbol);
 
@@ -51,12 +51,14 @@ public class QAMModulator extends Modulator {
             // E.g. 1111 1111 << 2 = 1111 1100.
             //      ~1111 1100 = 0000 0011.
             byte bitMask = (byte) ~(0xFF << (bitsPerSymbol / 2));
-            float aI = inphase(t) * (this.carrierAmplitude / levels) * Maths.log2(symbol & bitMask);
+            float aI = inphase(t) * (this.carrierAmplitude / levels) * (symbol & bitMask);
             symbol >>= bitsPerSymbol / 2;
-            float aQ = quadrature(t) * (this.carrierAmplitude / levels) * Maths.log2(symbol & bitMask);
+            float aQ = quadrature(t) * (this.carrierAmplitude / levels) * (symbol & bitMask);
 
             samples[i] = aI + aQ;
         }
+
+        this.buffer.addData(data);
 
         return samples;
     }
