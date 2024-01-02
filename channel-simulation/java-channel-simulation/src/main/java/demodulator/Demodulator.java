@@ -7,7 +7,7 @@ public abstract class Demodulator {
     protected float[] samples;
     protected int index = 0;
     protected float timeStep;
-    private byte currentByte;
+    protected byte currentByte;
 
     public final Buffer buffer = new Buffer();
 

@@ -69,6 +69,8 @@ public class Simulator {
     }
 
     public static void main(String[] args) throws InterruptedException {
+        System.out.println((byte) 0xFF10);
+
         simulatorSettings = new SimulatorSettings();
         simulatorSettings.run();
         // Wait for simulator settings to finish.

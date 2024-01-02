@@ -48,13 +48,14 @@ public class QAMModulator extends Modulator {
             for (int j = 0; j < bitsPerSymbol; j++)
                 symbol = (symbol << 1) + (bits[bitIndex + bitsPerSymbol] ? 1 : 0);
 
-            float f;
-            // If symbol is even then use inphase.
-            if (symbol % 2 == 0)    f = inphase(t);
-            else                    f = quadrature(t);
+            // E.g. 1111 1111 << 2 = 1111 1100.
+            //      ~1111 1100 = 0000 0011.
+            byte bitMask = (byte) ~(0xFF << (bitsPerSymbol / 2));
+            float aI = inphase(t) * (this.carrierAmplitude / levels) * Maths.log2(symbol & bitMask);
+            symbol >>= bitsPerSymbol / 2;
+            float aQ = quadrature(t) * (this.carrierAmplitude / levels) * Maths.log2(symbol & bitMask);
 
-            f *= (this.carrierAmplitude / levels) * Maths.log2(symbol / 2);
-            samples[i] = f;
+            samples[i] = aI + aQ;
         }
 
         return samples;
@@ -68,5 +69,9 @@ public class QAMModulator extends Modulator {
     public QAMModulator(float carrierFrequency, float modulationFrequency, float carrierAmplitude, float order) {
         super(carrierFrequency, modulationFrequency, carrierAmplitude);
         this.order = order;
+    }
+
+    public float getOrder() {
+        return this.order;
     }
 }

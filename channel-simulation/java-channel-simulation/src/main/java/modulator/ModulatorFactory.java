@@ -2,6 +2,7 @@ package modulator;
 
 import demodulator.ASKDemodulator;
 import demodulator.Demodulator;
+import demodulator.QAMDemodulator;
 
 import java.util.ArrayList;
 
@@ -31,7 +32,7 @@ public class ModulatorFactory {
             return new ASKDemodulator(samples, timeStep, ask.getDepth(), ask.getCarrierAmplitude(), ask.getModulationFrequency());
         } else if (modulator instanceof QAMModulator) {
             QAMModulator qam = (QAMModulator) modulator;
-            // todo return new qamdemodulator
+            return new QAMDemodulator(samples, timeStep, qam.getCarrierAmplitude(), qam.getCarrierFrequency(), qam.getModulationFrequency(), qam.getOrder());
         }
 
         return null;
