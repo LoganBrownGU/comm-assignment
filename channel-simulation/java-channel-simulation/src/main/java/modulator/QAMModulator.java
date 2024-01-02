@@ -1,5 +1,6 @@
 package modulator;
 
+import util.Filter;
 import util.Maths;
 
 public class QAMModulator extends Modulator {
@@ -50,13 +51,14 @@ public class QAMModulator extends Modulator {
 
             // E.g. 1111 1111 << 2 = 1111 1100.
             //      ~1111 1100 = 0000 0011.
-            byte bitMask = (byte) ~(0xFF << (bitsPerSymbol / 2));
+            byte bitMask = (byte) ~(0xFFFFFFFF << (bitsPerSymbol / 2));
             float aI = inphase(t) * (this.carrierAmplitude / levels) * (symbol & bitMask);
             symbol >>= bitsPerSymbol / 2;
             float aQ = quadrature(t) * (this.carrierAmplitude / levels) * (symbol & bitMask);
 
             samples[i] = aI + aQ;
         }
+        this.outputFilter.filter(samples, timeStep);
 
         this.buffer.addData(data);
 
@@ -68,8 +70,8 @@ public class QAMModulator extends Modulator {
         return (float) (this.carrierAmplitude / Math.sqrt(2));
     }
 
-    public QAMModulator(float carrierFrequency, float modulationFrequency, float carrierAmplitude, float order) {
-        super(carrierFrequency, modulationFrequency, carrierAmplitude);
+    public QAMModulator(float carrierFrequency, float modulationFrequency, float carrierAmplitude, float order, Filter filter) {
+        super(carrierFrequency, modulationFrequency, carrierAmplitude, filter);
         this.order = order;
     }
 

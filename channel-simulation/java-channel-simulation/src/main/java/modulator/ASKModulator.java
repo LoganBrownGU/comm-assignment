@@ -1,5 +1,7 @@
 package modulator;
 
+import util.Filter;
+
 public class ASKModulator extends Modulator {
     // todo rename all "amp" to "samples"
 
@@ -32,6 +34,7 @@ public class ASKModulator extends Modulator {
 
             samples[i] = (float) (this.carrierAmplitude * Math.sin(2 * Math.PI * t * this.carrierFrequency) * (bit ? 1 : 1 - this.depth));
         }
+        //this.outputFilter.filter(samples, timeStep);
 
         this.buffer.addData(data);
 
@@ -43,8 +46,8 @@ public class ASKModulator extends Modulator {
         return (float) (this.carrierAmplitude / Math.sqrt(2));
     }
 
-    public ASKModulator(float carrierFrequency, float modulationFrequency, float carrierAmplitude, float depth) {
-        super(carrierFrequency, modulationFrequency, carrierAmplitude);
+    public ASKModulator(float carrierFrequency, float modulationFrequency, float carrierAmplitude, float depth, Filter outputFilter) {
+        super(carrierFrequency, modulationFrequency, carrierAmplitude, outputFilter);
         this.depth = depth;
     }
 

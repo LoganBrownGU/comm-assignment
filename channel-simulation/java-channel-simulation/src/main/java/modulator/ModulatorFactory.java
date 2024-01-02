@@ -3,6 +3,7 @@ package modulator;
 import demodulator.ASKDemodulator;
 import demodulator.Demodulator;
 import demodulator.QAMDemodulator;
+import util.Filter;
 
 import java.util.ArrayList;
 
@@ -14,7 +15,9 @@ public class ModulatorFactory {
         float carrierAmplitude = Float.parseFloat(parameters.get(2));
         float depth = Float.parseFloat(parameters.get(3));
 
-        return new ASKModulator(carrierFrequency, modulationFrequency, carrierAmplitude, depth);
+        Filter filter = new Filter((int) (carrierAmplitude * 0.9), (int) (carrierAmplitude * 1.1));
+
+        return new ASKModulator(carrierFrequency, modulationFrequency, carrierAmplitude, depth, filter);
     }
 
     public static QAMModulator createQAMModulator(ArrayList<String> parameters) {
@@ -23,7 +26,9 @@ public class ModulatorFactory {
         float carrierAmplitude = Float.parseFloat(parameters.get(2));
         float order = Integer.parseInt(parameters.get(3));
 
-        return new QAMModulator(carrierFrequency, modulationFrequency, carrierAmplitude, order);
+        Filter filter = new Filter((int) (carrierAmplitude * 0.9), (int) (carrierAmplitude * 1.1));
+
+        return new QAMModulator(carrierFrequency, modulationFrequency, carrierAmplitude, order, filter);
     }
 
     public static Demodulator getDemodulator(Modulator modulator, float[] samples, float timeStep) {

@@ -21,7 +21,6 @@ public class Filter {
 
         int samplesPerSecond = (int) Math.round(1d / timeStep);
         for (int i = 0; (i + 1) * samplesPerSecond < samples.length; i++) {
-            long start = System.currentTimeMillis();
             float[] newSamples = new float[samplesPerSecond * 2];
             System.arraycopy(samples, i * samplesPerSecond, newSamples, 0, samplesPerSecond);
             FloatFFT_1D fft = new FloatFFT_1D(samplesPerSecond);
@@ -31,8 +30,6 @@ public class Filter {
 
             for (int j = 0; j < newSamples.length / 2; j++)
                 samples[j + i * samplesPerSecond] = newSamples[j * 2] / ((float) samplesPerSecond / 2);
-
-            System.out.println(System.currentTimeMillis() - start);
         }
 
         float[] newSamples = new float[(samples.length % samplesPerSecond) * 2];
