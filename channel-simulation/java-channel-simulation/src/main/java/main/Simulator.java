@@ -1,6 +1,7 @@
 package main;
 
 import demodulator.Demodulator;
+import demodulator.QAMDemodulator;
 import display.SimulatorSettings;
 import display.SimulatorView;
 import modulator.ASKModulator;
@@ -84,7 +85,7 @@ public class Simulator {
             xydata[i] = new XYDataItem(i * step, f[i]);
         }
         Plotter.plot("pre filter", "assets/prefilter.png", "t", "a", new XYDataItem(1600, 900), xydata);
-        new Filter(9, 11).filter(f, step);
+        new Filter(6, 15).filter(f, step);
         xydata = new XYDataItem[f.length];
         for (int i = 0; i < xydata.length; i++) {
             xydata[i] = new XYDataItem(i * step, f[i]);
@@ -102,7 +103,7 @@ public class Simulator {
 
         String path = "../assets/frames";
         // todo reset this
-        int framesToPlay = getNumFrames(path);
+        int framesToPlay = 5;//getNumFrames(path);
         Modulator modulator = simulatorSettings.getModulator();
         byte[] data = readImages(path, framesToPlay);
         Dimension imageSize = readImageSize(path);
@@ -112,9 +113,11 @@ public class Simulator {
         int framerate = 25;
 
         System.out.println("modulating...");
-        float[] amp = modulator.calculate(data, timeStep);
+        float[] samples = modulator.calculate(data, timeStep);
         System.out.println("demodulating...");
-        Demodulator demodulator = ModulatorFactory.getDemodulator(modulator, amp, timeStep);
+        Demodulator demodulator = ModulatorFactory.getDemodulator(modulator, samples, timeStep);
+        assert demodulator != null;
+        demodulator.initialCalculate(samples);
 
         simulatorSettings.dispose();
 
@@ -122,7 +125,7 @@ public class Simulator {
         Thread simulatorViewThread = new Thread(simulatorView);
         simulatorViewThread.setName("Simulator-View-Thread");
 
-        DemodulationController controller = new DemodulationController(demodulator, simulatorView, amp);
+        DemodulationController controller = new DemodulationController(demodulator, simulatorView, samples);
         Thread controllerThread = new Thread(controller);
         controllerThread.setName("Controller-Thread");
 

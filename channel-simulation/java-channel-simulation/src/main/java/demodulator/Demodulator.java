@@ -11,7 +11,7 @@ public abstract class Demodulator {
 
     public final Buffer buffer = new Buffer();
 
-    protected abstract void initialCalculate(float[] samples, float timeStep);
+    public abstract void initialCalculate(float[] samples);
 
     public abstract void next(float noise);
 
@@ -50,6 +50,7 @@ public abstract class Demodulator {
 
     public Demodulator(float[] samples, float timeStep) {
         this.timeStep = timeStep;
-        initialCalculate(samples, timeStep);
     }
+
+
 }

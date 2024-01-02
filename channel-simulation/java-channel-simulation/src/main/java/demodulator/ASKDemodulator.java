@@ -10,7 +10,7 @@ public class ASKDemodulator extends Demodulator {
                                     // then bitMask = 0000 0100
 
     @Override
-    public void initialCalculate(float[] samples, float timeStep) {
+    public void initialCalculate(float[] samples) {
         this.samples = samples;
     }
 

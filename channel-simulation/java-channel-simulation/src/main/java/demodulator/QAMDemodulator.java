@@ -25,8 +25,6 @@ public class QAMDemodulator extends Demodulator {
         float avgI = this.sumAmpI / this.samplesPerSymbolPeriod;
         float avgQ = this.sumAmpQ / this.samplesPerSymbolPeriod;
 
-        System.out.println(avgI);
-
         byte iVal = 0, qVal = 0;
         float div = this.carrierAmplitude / (levels-1);
         for (byte i = 0; i < levels; i++) {
@@ -42,8 +40,8 @@ public class QAMDemodulator extends Demodulator {
     }
 
     @Override
-    protected void initialCalculate(float[] samples, float timeStep) {
-        new Filter(0, (int) Math.ceil(this.carrierFrequency) + 20).filter(samples, this.timeStep);
+    public void initialCalculate(float[] samples) {
+        new Filter(0, (int) Math.ceil(this.carrierFrequency + 20)).filter(samples, this.timeStep);
         this.samples = samples;
     }
 
@@ -106,5 +104,9 @@ public class QAMDemodulator extends Demodulator {
         this.transitions = 0;
         this.sumAmpI = 0;
         this.sumAmpQ = 0;
+    }
+
+    public float getCarrierFrequency() {
+        return this.carrierFrequency;
     }
 }
