@@ -1,5 +1,6 @@
 package demodulator;
 
+import util.Filter;
 import util.Maths;
 
 public class QAMDemodulator extends Demodulator {
@@ -24,19 +25,25 @@ public class QAMDemodulator extends Demodulator {
         float avgI = this.sumAmpI / this.samplesPerSymbolPeriod;
         float avgQ = this.sumAmpQ / this.samplesPerSymbolPeriod;
 
+        System.out.println(avgI);
+
         byte iVal = 0, qVal = 0;
-        float div = this.carrierAmplitude / levels;
+        float div = this.carrierAmplitude / (levels-1);
         for (byte i = 0; i < levels; i++) {
-            if (avgI > i * div - 0.5f * div && avgI < i * div + 0.5f * div) iVal = i;
-            if (avgQ > i * div - 0.5f * div && avgQ < i * div + 0.5f * div) qVal = i;
+            if (avgI > i * div - 0.5f * div && avgI < i * div + 0.5f * div)
+                iVal = i;
+            if (avgQ > i * div - 0.5f * div && avgQ < i * div + 0.5f * div)
+                qVal = i;
         }
 
         qVal <<= bitsPerSymbol / 2;
+
         return (byte) (qVal + iVal);
     }
 
     @Override
     protected void initialCalculate(float[] samples, float timeStep) {
+        new Filter(0, (int) Math.ceil(this.carrierFrequency) + 20).filter(samples, this.timeStep);
         this.samples = samples;
     }
 
@@ -90,7 +97,7 @@ public class QAMDemodulator extends Demodulator {
         this.order = order;
         this.samplesPerSymbolPeriod = (int) (this.symbolPeriod / timeStep);
         this.bitsPerSymbol = (int) Maths.log2(this.order);
-        this.levels = (int) Math.sqrt(this.bitsPerSymbol);
+        this.levels = (int) Math.pow(2, (double) this.bitsPerSymbol / 2);
     }
 
     @Override
