@@ -74,6 +74,7 @@ public class Simulator {
         String path = "../assets/frames";
         int framesToPlay = getNumFrames(path);
         Modulator modulator = simulatorSettings.getModulator();
+        if (modulator == null) System.exit(0);
         byte[] data = readImages(path, framesToPlay);
         Dimension imageSize = readImageSize(path);
         // Set timeStep so that there are 100 samples per bit frame.
