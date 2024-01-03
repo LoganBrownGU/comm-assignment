@@ -46,8 +46,6 @@ public class SimulatorSettings extends Frame implements Runnable {
         switch (this.chosenModulator) {
             case ASK:
                 return ModulatorFactory.createASKModulator(this.modulatorParameters);
-            case FSK:
-                break;
             case QAM:
                 return ModulatorFactory.createQAMModulator(this.modulatorParameters);
         }

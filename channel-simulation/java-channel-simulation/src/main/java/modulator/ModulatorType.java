@@ -2,19 +2,15 @@ package modulator;
 
 public enum ModulatorType {
     ASK,
-    FSK,
     QAM;
 
     public static String[] getParameters(ModulatorType type) {
         String[] defaultParams = Modulator.parameters;
         String[] typeParams = {};
 
-        // TODO add cases for other modulators
         switch (type) {
             case ASK:
                 typeParams = ASKModulator.parameters;
-                break;
-            case FSK:
                 break;
             case QAM:
                 typeParams = QAMModulator.parameters;
@@ -31,12 +27,9 @@ public enum ModulatorType {
         String[] defaultDefaults = Modulator.parameterDefaults;
         String[] typeDefaults = {};
 
-        // TODO add cases for other modulators
         switch (type) {
             case ASK:
                 typeDefaults = ASKModulator.parameterDefaults;
-                break;
-            case FSK:
                 break;
             case QAM:
                 typeDefaults = QAMModulator.parameterDefaults;
