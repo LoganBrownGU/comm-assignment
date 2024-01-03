@@ -1,7 +1,7 @@
 import imageio.v3 as iio
 
 
-frames = iio.imread("confetti.gif", plugin="pyav")
+frames = iio.imread("homer.gif", plugin="pyav")
 print(frames[0][0])
 
 new_width = 40

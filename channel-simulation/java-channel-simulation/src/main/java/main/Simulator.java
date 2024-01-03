@@ -62,8 +62,7 @@ public class Simulator {
         return new Dimension(width, height);
     }
 
-    public static void main(String[] args) throws InterruptedException {
-
+    public static boolean simulate() throws InterruptedException {
         SimulatorSettings simulatorSettings = new SimulatorSettings();
         simulatorSettings.run();
         // Wait for simulator settings to finish.
@@ -74,12 +73,11 @@ public class Simulator {
         String path = "../assets/frames";
         int framesToPlay = getNumFrames(path);
         Modulator modulator = simulatorSettings.getModulator();
-        if (modulator == null) System.exit(0);
+        if (modulator == null) return false;
         byte[] data = readImages(path, framesToPlay);
         Dimension imageSize = readImageSize(path);
         // Set timeStep so that there are 100 samples per bit frame.
         float timeStep = 0.01f / modulator.getModulationFrequency();
-        System.out.println(timeStep);
         int framerate = 25;
 
         System.out.println("modulating...");
@@ -109,5 +107,11 @@ public class Simulator {
         controllerThread.join();
         simulatorView.dispose();
         simulatorViewThread.join();
+
+        return simulatorView.getChangeSettings();
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        while (simulate());
     }
 }

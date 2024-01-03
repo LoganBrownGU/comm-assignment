@@ -22,7 +22,7 @@ public class SimulatorView extends Frame implements Runnable {
     private final Demodulator demodulator;
     private final int updatePeriod; // milliseconds
 
-    private boolean finished = false, demodulationFinished = false;
+    private boolean finished = false, demodulationFinished = false, changeSettings = false;
     private float noiseRMS;
 
     private float findBER(byte[] input, byte[] output) {
@@ -47,7 +47,17 @@ public class SimulatorView extends Frame implements Runnable {
         this.setLayout(null);
         this.setSize(1600, 900);
         this.setResizable(false);
-        this.setMenuBar(new MenuBar());
+        Button changeSettingsButton = new Button("Change settings...");
+        changeSettingsButton.setLocation(PADDING.width, 30);
+        changeSettingsButton.setSize(150, 30);
+        changeSettingsButton.addActionListener(e -> {
+            synchronized (SimulatorView.this.finishedLock) {
+                this.changeSettings = true;
+                this.finished = true;
+                this.finishedLock.notifyAll();
+            }
+        });
+        this.add(changeSettingsButton);
 
         this.inputDisplay.setSize(IMAGE_DISPLAY_SIZE);
         this.inputDisplay.setLocation(PADDING.width, PADDING.height);
@@ -174,5 +184,9 @@ public class SimulatorView extends Frame implements Runnable {
 
     public int getImageSizeBytes() {
         return this.inputDisplay.getImageHeight() * this.inputDisplay.getImageWidth() * 3;
+    }
+
+    public boolean getChangeSettings() {
+        return this.changeSettings;
     }
 }
