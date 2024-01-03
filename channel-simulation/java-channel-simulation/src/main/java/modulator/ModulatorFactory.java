@@ -15,7 +15,8 @@ public class ModulatorFactory {
         float carrierAmplitude = Float.parseFloat(parameters.get(2));
         float depth = Float.parseFloat(parameters.get(3));
 
-        Filter filter = new Filter((int) (carrierAmplitude * 0.9), (int) (carrierAmplitude * 1.1));
+        // Limit bandwidth to 20% of carrier frequency.
+        Filter filter = new Filter((int) (carrierFrequency * 0.9), (int) (carrierFrequency * 1.1));
 
         return new ASKModulator(carrierFrequency, modulationFrequency, carrierAmplitude, depth, filter);
     }
@@ -26,7 +27,8 @@ public class ModulatorFactory {
         float carrierAmplitude = Float.parseFloat(parameters.get(2));
         float order = Integer.parseInt(parameters.get(3));
 
-        Filter filter = new Filter((int) (carrierAmplitude * 0.9), (int) (carrierAmplitude * 1.1));
+        // Limit bandwidth to 20% of carrier frequency.
+        Filter filter = new Filter((int) (carrierFrequency * 0.9), (int) (carrierFrequency * 1.1));
 
         return new QAMModulator(carrierFrequency, modulationFrequency, carrierAmplitude, order, filter);
     }

@@ -23,9 +23,16 @@ public class DemodulationController implements Runnable {
                 this.demodulator.next((float) (rd.nextGaussian() * this.simulatorView.getNoiseRMS()));
 
 
-            // Sometimes the demodulator won't output the final byte, so need to make sure that there's a multiple
-            // of 3 bytes in the buffer.
-            for (int i = 0; i < this.demodulator.buffer.getSize() % 3; i++) this.demodulator.buffer.addData((byte) 0x00);
+            /*synchronized (this.demodulator.buffer) {
+                // Sometimes the demodulator won't output the last bytes, or will output too many.
+                if (this.demodulator.buffer.getSize() != 0) {
+                    while (this.demodulator.buffer.getSize() > this.simulatorView.getModulator().buffer.getSize())
+                        this.demodulator.buffer.getChunk(1);
+                    while (this.demodulator.buffer.getSize() < this.simulatorView.getModulator().buffer.getSize())
+                        this.demodulator.buffer.addData((byte) 0x00);
+                }
+                this.demodulator.buffer.notifyAll();
+            }*/
 
             // Tell the simulator window that the demodulation has finished.
             this.simulatorView.alertFinished();

@@ -34,7 +34,7 @@ public class ASKModulator extends Modulator {
 
             samples[i] = (float) (this.carrierAmplitude * Math.sin(2 * Math.PI * t * this.carrierFrequency) * (bit ? 1 : 1 - this.depth));
         }
-        //this.outputFilter.filter(samples, timeStep);
+        this.outputFilter.filter(samples, timeStep);
 
         this.buffer.addData(data);
 

@@ -172,4 +172,12 @@ public class SimulatorView extends Frame implements Runnable {
     public boolean isFinished() {
         return this.finished;
     }
+
+    public int getImageSizeBytes() {
+        return this.inputDisplay.getImageHeight() * this.inputDisplay.getImageWidth() * 3;
+    }
+
+    public Modulator getModulator() {
+        return this.modulator;
+    }
 }

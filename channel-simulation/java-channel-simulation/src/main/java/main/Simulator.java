@@ -103,7 +103,7 @@ public class Simulator {
 
         String path = "../assets/frames";
         // todo reset this
-        int framesToPlay = 5;//getNumFrames(path);
+        int framesToPlay = 10;//getNumFrames(path);
         Modulator modulator = simulatorSettings.getModulator();
         byte[] data = readImages(path, framesToPlay);
         Dimension imageSize = readImageSize(path);

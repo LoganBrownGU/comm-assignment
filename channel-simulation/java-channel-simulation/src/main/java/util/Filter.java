@@ -19,6 +19,7 @@ public class Filter {
 
     public void filter(float[] samples, float timeStep) {
 
+        // To reduce memory usage and avoid scaling, do the Fourier Transform 1 second at a time.
         int samplesPerSecond = (int) Math.round(1d / timeStep);
         for (int i = 0; (i + 1) * samplesPerSecond < samples.length; i++) {
             float[] newSamples = new float[samplesPerSecond * 2];
@@ -31,16 +32,6 @@ public class Filter {
             for (int j = 0; j < newSamples.length / 2; j++)
                 samples[j + i * samplesPerSecond] = newSamples[j * 2] / ((float) samplesPerSecond / 2);
         }
-
-        float[] newSamples = new float[(samples.length % samplesPerSecond) * 2];
-        System.arraycopy(samples, samples.length - newSamples.length / 2, newSamples, 0, newSamples.length / 2);
-        FloatFFT_1D fft = new FloatFFT_1D(newSamples.length / 2);
-        fft.realForward(newSamples);
-        removeFrequencies(newSamples);
-        fft.complexInverse(newSamples, false);
-
-        for (int j = 0; j < newSamples.length / 2; j++)
-            samples[j + samples.length - newSamples.length / 2] = newSamples[j * 2] / ((float) samplesPerSecond / 2);
     }
 
     public Filter(int lowCutoff, int highCutoff) {
