@@ -8,7 +8,7 @@ public class QAMModulator extends Modulator {
     private final float order;
 
     public static final String[] parameters = {"order"};
-    public static final String[] parameterDefaults = {"4"};
+    public static final String[] parameterDefaults = {"16"};
 
     private float inphase(float t) {
         return (float) Math.sin(2 * Math.PI * this.carrierFrequency * t);
@@ -23,7 +23,7 @@ public class QAMModulator extends Modulator {
         float symbolPeriod = 1f / this.modulationFrequency;
         int bitsPerSymbol = (int) Maths.log2(this.order);
         float endTime = data.length * 8 * (symbolPeriod / bitsPerSymbol);
-        int levels = (int) Math.sqrt(bitsPerSymbol);
+        int levels = (int) Math.pow(2, bitsPerSymbol / 2);
 
         // Convert array of bytes into array of bits
         boolean[] bits = new boolean[data.length * 8];
@@ -45,16 +45,17 @@ public class QAMModulator extends Modulator {
             if (bitIndex + bitsPerSymbol >= bits.length) break;
 
             // Construct symbol to be sent from bit array.
-            int symbol = 0;
+            long symbol = 0;
             for (int j = 0; j < bitsPerSymbol; j++)
-                symbol = (symbol << 1) + (bits[bitIndex + bitsPerSymbol] ? 1 : 0);
+                symbol = (symbol << 1) + (bits[bitIndex + j] ? 1 : 0);
 
             // E.g. 1111 1111 << 2 = 1111 1100.
             //      ~1111 1100 = 0000 0011.
-            byte bitMask = (byte) ~(0xFFFFFFFF << (bitsPerSymbol / 2));
-            float aI = inphase(t) * (this.carrierAmplitude / levels) * (symbol & bitMask);
+            // -1 = 0xFFFFFFFFFFFFFFFF
+            long bitMask = (byte) ~(-1 << (bitsPerSymbol / 2));
+            float aI = inphase(t) * (this.carrierAmplitude) * (symbol & bitMask);
             symbol >>= bitsPerSymbol / 2;
-            float aQ = quadrature(t) * (this.carrierAmplitude / levels) * (symbol & bitMask);
+            float aQ = quadrature(t) * (this.carrierAmplitude) * (symbol & bitMask);
 
             samples[i] = aI + aQ;
         }

@@ -9,6 +9,7 @@ import modulator.Modulator;
 import modulator.ModulatorFactory;
 import org.jfree.data.xy.XYDataItem;
 import util.Filter;
+import util.Maths;
 import util.Plotter;
 
 import javax.imageio.ImageIO;

@@ -1,6 +1,6 @@
 package demodulator;
 
-import org.jfree.chart.plot.Plot;
+import display.SimulatorView;
 import org.jfree.data.xy.XYDataItem;
 import util.Filter;
 import util.Maths;
@@ -30,22 +30,31 @@ public class QAMDemodulator extends Demodulator {
         return (float) Math.cos(2 * Math.PI * this.carrierFrequency * t);
     }
 
-    private byte getVal(int levels, int bitsPerSymbol) {
+    private long getVal(int levels) {
         float avgI = this.sumAmpI / this.samplesPerSymbolPeriod;
         float avgQ = this.sumAmpQ / this.samplesPerSymbolPeriod;
 
-        byte iVal = 0, qVal = 0;
-        float div = this.carrierAmplitude / (levels-1);
+        int iVal = (byte) 0xFF, qVal = (byte) 0xFF;
+        float div = this.carrierAmplitude;
         for (byte i = 0; i < levels; i++) {
-            if (avgI > i * div - 0.5f * div && avgI < i * div + 0.5f * div)
+            float correctVal = i * div - 0.5f * div;
+            if (avgI > correctVal - 0.5f * div && avgI < correctVal + 0.5f * div)
                 iVal = i;
-            if (avgQ > i * div - 0.5f * div && avgQ < i * div + 0.5f * div)
+            if (avgQ > correctVal - 0.5f * div && avgQ < correctVal + 0.5f * div)
                 qVal = i;
         }
 
-        qVal <<= bitsPerSymbol / 2;
+        qVal <<= this.bitsPerSymbol / 2;
 
-        return (byte) (qVal + iVal);
+        /*byte val = 0;
+        byte sum = (byte) (qVal + iVal);
+        for (int i = 0; i < 8; i++) {
+            val += (byte) ((byte) ((sum & 0x80) != 0 ? 1 : 0) << i);
+            sum <<= 1;
+        }*/
+        byte val = (byte) (qVal + iVal);
+
+        return Maths.reverseByte(val);
     }
 
     @Override
@@ -61,7 +70,7 @@ public class QAMDemodulator extends Demodulator {
             this.qSamples[i] *= localOscillatorQ(t);
         }
 
-        Filter filter = new Filter(0, (int) Math.ceil(this.carrierFrequency - 20000));
+        Filter filter = new Filter(0, (int) Math.ceil(this.carrierFrequency * 1.5));
         filter.filter(this.iSamples, this.timeStep);
         filter.filter(this.qSamples, this.timeStep);
 
@@ -75,14 +84,13 @@ public class QAMDemodulator extends Demodulator {
         float aI = this.iSamples[this.index] + noise;
         float aQ = this.qSamples[this.index] + noise;
 
-        if (index < 100 * this.symbolPeriod / this.timeStep) {
+        if (index < 10 * this.samplesPerSymbolPeriod) {
             this.data.add(new XYDataItem(t, 2 * aI));
         } else if (!data.isEmpty()) {
             Plotter.plot("ishfsd", "assets/i.png", "t", "a", new XYDataItem(1600, 900), data);
             data.clear();
         }
 
-        // todo assume filtering already happened
         // After filtering, left with 1/2 Q(t) and 1/2 I(t)
         aI *= 2;
         aQ *= 2;
@@ -92,7 +100,7 @@ public class QAMDemodulator extends Demodulator {
         int frame = (int) (t / this.symbolPeriod);
         if (this.transitions != frame) {
             this.transitions++;
-            byte val = getVal(this.levels, this.bitsPerSymbol);
+            long val = getVal(this.levels);
 
             this.current8Bytes <<= this.bitsPerSymbol;
             this.current8Bytes |= val;
