@@ -38,7 +38,7 @@ public class Simulator {
     // Count number of frames.
     private static int getNumFrames(String path) {
         File dir = new File(path);
-        if (!dir.isDirectory()) throw new RuntimeException("path must be directory");
+        if (!dir.isDirectory()) throw new RuntimeException(path + " is not a directory");
 
         int n = 0;
         for (File f : Objects.requireNonNull(dir.listFiles()))
@@ -70,7 +70,7 @@ public class Simulator {
             while (!simulatorSettings.isFinished()) simulatorSettings.lock.wait();
         }
 
-        String path = "../assets/frames";
+        String path = "assets/frames";
         int framesToPlay = getNumFrames(path);
         Modulator modulator = simulatorSettings.getModulator();
         if (modulator == null) return false;

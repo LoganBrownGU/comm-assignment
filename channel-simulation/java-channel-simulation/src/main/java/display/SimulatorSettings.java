@@ -146,7 +146,6 @@ public class SimulatorSettings extends Frame implements Runnable {
             ModulatorMenuItem mi = new ModulatorMenuItem(mt.name(), mt);
             mi.addActionListener(e -> {
                 this.chosenModulator = mi.getType();
-                System.out.println(this.chosenModulator);
                 createParamInputs(ModulatorType.getParameters(mi.getType()), ModulatorType.getParameterDefaults(mi.getType()));
             });
 
