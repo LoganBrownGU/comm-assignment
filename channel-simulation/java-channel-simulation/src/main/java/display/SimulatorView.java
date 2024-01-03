@@ -78,7 +78,8 @@ public class SimulatorView extends Frame implements Runnable {
         this.snrSlider.setVisible(true);
         this.snrSlider.setMinimum(minSNR);
         this.snrSlider.setMaximum(maxSNR);
-        this.snrSlider.setValue((maxSNR - minSNR) / 2);
+        // todo reset this
+        this.snrSlider.setValue(240);
         this.snrSlider.addChangeListener(e -> {
             this.snrDisplay.setText(this.snrSlider.getValue() + " dB");
             this.noiseRMS = this.modulator.getRMS() / (float) Math.pow(10, (double) this.snrSlider.getValue() / 20);
@@ -154,12 +155,12 @@ public class SimulatorView extends Frame implements Runnable {
             byte[] outputData = this.demodulator.buffer.getChunk(this.outputDisplay.getImageWidth() * this.outputDisplay.getImageHeight() * 3);
             this.outputDisplay.paint(outputData);
             this.berDisplay.setText(Float.toString(findBER(inputData, outputData)));
-            for (int i = 0; i < 10; i++) {
+           /* for (int i = 0; i < 10; i++) {
                 int idx = new Random().nextInt(0, inputData.length);
                 if (inputData[idx] != Maths.reverseByte(outputData[idx]))
                     System.out.println(byteToString(inputData[idx]) + "\n" + byteToString(Maths.reverseByte(outputData[idx])) + "\n");
             }
-            System.out.println();
+            System.out.println();*/
 
             try {
                 Thread.sleep(this.updatePeriod);

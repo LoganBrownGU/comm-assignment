@@ -53,9 +53,11 @@ public class QAMModulator extends Modulator {
             //      ~1111 1100 = 0000 0011.
             // -1 = 0xFFFFFFFFFFFFFFFF
             long bitMask = (byte) ~(-1 << (bitsPerSymbol / 2));
-            float aI = inphase(t) * (this.carrierAmplitude) * (symbol & bitMask);
+            //float aI = inphase(t) * (this.carrierAmplitude) * (symbol & bitMask);
+            float aI = inphase(t) * (this.carrierAmplitude / levels) * (symbol & bitMask);
             symbol >>= bitsPerSymbol / 2;
-            float aQ = quadrature(t) * (this.carrierAmplitude) * (symbol & bitMask);
+            float aQ = quadrature(t) * (this.carrierAmplitude / levels) * (symbol & bitMask);
+            //float aQ = quadrature(t) * (this.carrierAmplitude) * (symbol & bitMask);
 
             samples[i] = aI + aQ;
         }

@@ -35,7 +35,7 @@ public class QAMDemodulator extends Demodulator {
         float avgQ = this.sumAmpQ / this.samplesPerSymbolPeriod;
 
         int iVal = (byte) 0xFF, qVal = (byte) 0xFF;
-        float div = this.carrierAmplitude;
+        float div = this.carrierAmplitude / levels;
         for (byte i = 0; i < levels; i++) {
             float correctVal = i * div - 0.5f * div;
             if (avgI > correctVal - 0.5f * div && avgI < correctVal + 0.5f * div)
@@ -43,17 +43,9 @@ public class QAMDemodulator extends Demodulator {
             if (avgQ > correctVal - 0.5f * div && avgQ < correctVal + 0.5f * div)
                 qVal = i;
         }
-
         qVal <<= this.bitsPerSymbol / 2;
 
-        /*byte val = 0;
-        byte sum = (byte) (qVal + iVal);
-        for (int i = 0; i < 8; i++) {
-            val += (byte) ((byte) ((sum & 0x80) != 0 ? 1 : 0) << i);
-            sum <<= 1;
-        }*/
         byte val = (byte) (qVal + iVal);
-
         return Maths.reverseByte(val);
     }
 
