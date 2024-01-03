@@ -3,7 +3,6 @@ package modulator;
 import util.Filter;
 
 public class ASKModulator extends Modulator {
-    // todo rename all "amp" to "samples"
 
     private final float depth;
     // Additional parameters for ASK

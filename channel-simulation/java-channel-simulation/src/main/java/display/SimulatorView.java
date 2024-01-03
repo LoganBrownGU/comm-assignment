@@ -2,13 +2,11 @@ package display;
 
 import demodulator.Demodulator;
 import modulator.Modulator;
-import util.Maths;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Random;
 
 public class SimulatorView extends Frame implements Runnable {
 
@@ -26,16 +24,6 @@ public class SimulatorView extends Frame implements Runnable {
 
     private boolean finished = false, demodulationFinished = false;
     private float noiseRMS;
-
-    // todo move changeListeners out of init
-
-    public static String byteToString(byte b) {
-        String s = Integer.toBinaryString(Byte.toUnsignedInt(b));
-        while (s.length() < 8)
-            s = "0" + s;
-
-        return s;
-    }
 
     private float findBER(byte[] input, byte[] output) {
         if (output.length != input.length) throw new IllegalArgumentException("input data must be same size as output data");
@@ -78,8 +66,7 @@ public class SimulatorView extends Frame implements Runnable {
         this.snrSlider.setVisible(true);
         this.snrSlider.setMinimum(minSNR);
         this.snrSlider.setMaximum(maxSNR);
-        // todo reset this
-        this.snrSlider.setValue(240);
+        this.snrSlider.setValue(minSNR + (maxSNR - minSNR) / 2);
         this.snrSlider.addChangeListener(e -> {
             this.snrDisplay.setText(this.snrSlider.getValue() + " dB");
             this.noiseRMS = this.modulator.getRMS() / (float) Math.pow(10, (double) this.snrSlider.getValue() / 20);
@@ -155,12 +142,6 @@ public class SimulatorView extends Frame implements Runnable {
             byte[] outputData = this.demodulator.buffer.getChunk(this.outputDisplay.getImageWidth() * this.outputDisplay.getImageHeight() * 3);
             this.outputDisplay.paint(outputData);
             this.berDisplay.setText(Float.toString(findBER(inputData, outputData)));
-           /* for (int i = 0; i < 10; i++) {
-                int idx = new Random().nextInt(0, inputData.length);
-                if (inputData[idx] != Maths.reverseByte(outputData[idx]))
-                    System.out.println(byteToString(inputData[idx]) + "\n" + byteToString(Maths.reverseByte(outputData[idx])) + "\n");
-            }
-            System.out.println();*/
 
             try {
                 Thread.sleep(this.updatePeriod);
@@ -193,9 +174,5 @@ public class SimulatorView extends Frame implements Runnable {
 
     public int getImageSizeBytes() {
         return this.inputDisplay.getImageHeight() * this.inputDisplay.getImageWidth() * 3;
-    }
-
-    public Modulator getModulator() {
-        return this.modulator;
     }
 }

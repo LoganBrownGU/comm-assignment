@@ -32,13 +32,13 @@ public class ModulatorFactory {
         return new QAMModulator(carrierFrequency, modulationFrequency, carrierAmplitude, filter);
     }
 
-    public static Demodulator getDemodulator(Modulator modulator, float[] samples, float timeStep) {
+    public static Demodulator getDemodulator(Modulator modulator, float timeStep) {
         if (modulator instanceof ASKModulator) {
             ASKModulator ask = (ASKModulator) modulator;
-            return new ASKDemodulator(samples, timeStep, ask.getDepth(), ask.getCarrierAmplitude(), ask.getModulationFrequency());
+            return new ASKDemodulator(timeStep, ask.getDepth(), ask.getCarrierAmplitude(), ask.getModulationFrequency());
         } else if (modulator instanceof QAMModulator) {
             QAMModulator qam = (QAMModulator) modulator;
-            return new QAMDemodulator(samples, timeStep, qam.getCarrierAmplitude(), qam.getCarrierFrequency(), qam.getModulationFrequency(), qam.getOrder());
+            return new QAMDemodulator(timeStep, qam.getCarrierAmplitude(), qam.getCarrierFrequency(), qam.getModulationFrequency(), qam.getOrder());
         }
 
         return null;

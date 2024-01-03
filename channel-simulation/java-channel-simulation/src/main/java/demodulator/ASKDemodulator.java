@@ -44,8 +44,8 @@ public class ASKDemodulator extends Demodulator {
         this.index++;
     }
 
-    public ASKDemodulator(float[] samples, float timeStep, float depth, float amplitude, float modulationFrequency) {
-        super(samples, timeStep);
+    public ASKDemodulator(float timeStep, float depth, float amplitude, float modulationFrequency) {
+        super(timeStep);
         this.depth = depth;
         this.amplitude = amplitude;
         this.modulationPeriod = 1f / modulationFrequency;

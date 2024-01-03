@@ -1,16 +1,11 @@
 package demodulator;
 
-import display.SimulatorView;
-import org.jfree.data.xy.XYDataItem;
 import util.Filter;
 import util.Maths;
-import util.Plotter;
-
-import java.util.ArrayList;
 
 public class QAMDemodulator extends Demodulator {
 
-    private final float carrierAmplitude, carrierFrequency, symbolPeriod, order;
+    private final float carrierAmplitude, carrierFrequency, symbolPeriod;
     private final int samplesPerSymbolPeriod, levels, bitsPerSymbol;
 
     private float sumAmpI = 0;
@@ -18,8 +13,6 @@ public class QAMDemodulator extends Demodulator {
     private int transitions = 0;
 
     private float[] iSamples, qSamples;
-
-    ArrayList<XYDataItem> data = new ArrayList<>();
 
     private float localOscillatorI(float t) {
         return (float) Math.sin(2 * Math.PI * this.carrierFrequency * t);
@@ -76,13 +69,6 @@ public class QAMDemodulator extends Demodulator {
         float aI = this.iSamples[this.index] + noise;
         float aQ = this.qSamples[this.index] + noise;
 
-        if (index < 10 * this.samplesPerSymbolPeriod) {
-            this.data.add(new XYDataItem(t, 2 * aI));
-        } else if (!data.isEmpty()) {
-            Plotter.plot("ishfsd", "assets/i.png", "t", "a", new XYDataItem(1600, 900), data);
-            data.clear();
-        }
-
         // After filtering, left with 1/2 Q(t) and 1/2 I(t)
         aI *= 2;
         aQ *= 2;
@@ -108,14 +94,13 @@ public class QAMDemodulator extends Demodulator {
         this.index++;
     }
 
-    public QAMDemodulator(float[] samples, float timeStep, float carrierAmplitude, float carrierFrequency, float modulationFrequency, float order) {
-        super(samples, timeStep);
+    public QAMDemodulator(float timeStep, float carrierAmplitude, float carrierFrequency, float modulationFrequency, float order) {
+        super(timeStep);
         this.carrierAmplitude = carrierAmplitude;
         this.carrierFrequency = carrierFrequency;
         this.symbolPeriod = 1f / modulationFrequency;
-        this.order = order;
         this.samplesPerSymbolPeriod = (int) (this.symbolPeriod / timeStep);
-        this.bitsPerSymbol = (int) Maths.log2(this.order);
+        this.bitsPerSymbol = (int) Maths.log2(order);
         this.levels = (int) Math.pow(2, (double) this.bitsPerSymbol / 2);
     }
 
@@ -125,9 +110,5 @@ public class QAMDemodulator extends Demodulator {
         this.transitions = 0;
         this.sumAmpI = 0;
         this.sumAmpQ = 0;
-    }
-
-    public float getCarrierFrequency() {
-        return this.carrierFrequency;
     }
 }

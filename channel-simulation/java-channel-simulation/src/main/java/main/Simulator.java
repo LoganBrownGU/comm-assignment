@@ -1,16 +1,10 @@
 package main;
 
 import demodulator.Demodulator;
-import demodulator.QAMDemodulator;
 import display.SimulatorSettings;
 import display.SimulatorView;
-import modulator.ASKModulator;
 import modulator.Modulator;
 import modulator.ModulatorFactory;
-import org.jfree.data.xy.XYDataItem;
-import util.Filter;
-import util.Maths;
-import util.Plotter;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -22,9 +16,6 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class Simulator {
-
-    private static SimulatorSettings simulatorSettings;
-    private static SimulatorView simulatorView;
 
     // Read in frames as raw byte data.
     private static byte[] readImages(String path, int nImages) {
@@ -73,29 +64,7 @@ public class Simulator {
 
     public static void main(String[] args) throws InterruptedException {
 
-        /*float periods = 4.4f;
-        float[] f = new float[(int) (periods * 100000)];
-        float step = periods / f.length;
-        System.out.println(f.length * step);
-        for (int i = 0; i < f.length; i++) {
-            float t = step * i;
-            f[i] = (float) (Math.sin(2 * Math.PI * 10 * t) * Math.sin(2 * Math.PI * 3 * t));
-        }
-        XYDataItem[] xydata = new XYDataItem[f.length];
-        for (int i = 0; i < xydata.length; i++) {
-            xydata[i] = new XYDataItem(i * step, f[i]);
-        }
-        Plotter.plot("pre filter", "assets/prefilter.png", "t", "a", new XYDataItem(1600, 900), xydata);
-        new Filter(6, 15).filter(f, step);
-        xydata = new XYDataItem[f.length];
-        for (int i = 0; i < xydata.length; i++) {
-            xydata[i] = new XYDataItem(i * step, f[i]);
-        }
-        Plotter.plot("post filter", "assets/postfilter.png", "t", "a", new XYDataItem(1600, 900), xydata);
-
-        System.exit(0);*/
-
-        simulatorSettings = new SimulatorSettings();
+        SimulatorSettings simulatorSettings = new SimulatorSettings();
         simulatorSettings.run();
         // Wait for simulator settings to finish.
         synchronized (simulatorSettings.lock) {
@@ -103,8 +72,7 @@ public class Simulator {
         }
 
         String path = "../assets/frames";
-        // todo reset this
-        int framesToPlay = 10;//getNumFrames(path);
+        int framesToPlay = getNumFrames(path);
         Modulator modulator = simulatorSettings.getModulator();
         byte[] data = readImages(path, framesToPlay);
         Dimension imageSize = readImageSize(path);
@@ -116,13 +84,13 @@ public class Simulator {
         System.out.println("modulating...");
         float[] samples = modulator.calculate(data, timeStep);
         System.out.println("demodulating...");
-        Demodulator demodulator = ModulatorFactory.getDemodulator(modulator, samples, timeStep);
+        Demodulator demodulator = ModulatorFactory.getDemodulator(modulator, timeStep);
         assert demodulator != null;
         demodulator.initialCalculate(samples);
 
         simulatorSettings.dispose();
 
-        simulatorView = new SimulatorView(modulator, demodulator, imageSize, framerate);
+        SimulatorView simulatorView = new SimulatorView(modulator, demodulator, imageSize, framerate);
         Thread simulatorViewThread = new Thread(simulatorView);
         simulatorViewThread.setName("Simulator-View-Thread");
 

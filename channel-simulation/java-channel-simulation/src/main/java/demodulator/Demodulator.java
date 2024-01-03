@@ -48,7 +48,7 @@ public abstract class Demodulator {
         this.index = 0;
     }
 
-    public Demodulator(float[] samples, float timeStep) {
+    public Demodulator(float timeStep) {
         this.timeStep = timeStep;
     }
 
