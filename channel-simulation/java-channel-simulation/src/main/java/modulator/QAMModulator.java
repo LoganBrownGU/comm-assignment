@@ -5,10 +5,10 @@ import util.Maths;
 
 public class QAMModulator extends Modulator {
 
-    private final float order;
+    public static final String[] parameters = {};
+    public static final String[] parameterDefaults = {};
 
-    public static final String[] parameters = {"order"};
-    public static final String[] parameterDefaults = {"16"};
+    private final float order = 16;
 
     private float inphase(float t) {
         return (float) Math.sin(2 * Math.PI * this.carrierFrequency * t);
@@ -73,9 +73,8 @@ public class QAMModulator extends Modulator {
         return (float) (this.carrierAmplitude / Math.sqrt(2));
     }
 
-    public QAMModulator(float carrierFrequency, float modulationFrequency, float carrierAmplitude, float order, Filter filter) {
+    public QAMModulator(float carrierFrequency, float modulationFrequency, float carrierAmplitude, Filter filter) {
         super(carrierFrequency, modulationFrequency, carrierAmplitude, filter);
-        this.order = order;
     }
 
     public float getOrder() {

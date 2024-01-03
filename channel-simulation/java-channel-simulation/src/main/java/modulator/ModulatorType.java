@@ -2,7 +2,7 @@ package modulator;
 
 public enum ModulatorType {
     ASK,
-    QAM;
+    QAM16;
 
     public static String[] getParameters(ModulatorType type) {
         String[] defaultParams = Modulator.parameters;
@@ -12,7 +12,7 @@ public enum ModulatorType {
             case ASK:
                 typeParams = ASKModulator.parameters;
                 break;
-            case QAM:
+            case QAM16:
                 typeParams = QAMModulator.parameters;
         }
 
@@ -31,7 +31,7 @@ public enum ModulatorType {
             case ASK:
                 typeDefaults = ASKModulator.parameterDefaults;
                 break;
-            case QAM:
+            case QAM16:
                 typeDefaults = QAMModulator.parameterDefaults;
                 break;
         }

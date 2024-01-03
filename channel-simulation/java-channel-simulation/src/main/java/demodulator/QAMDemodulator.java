@@ -16,7 +16,6 @@ public class QAMDemodulator extends Demodulator {
     private float sumAmpI = 0;
     private float sumAmpQ = 0;
     private int transitions = 0;
-    private long current8Bytes = 0;
 
     private float[] iSamples, qSamples;
 
@@ -30,22 +29,23 @@ public class QAMDemodulator extends Demodulator {
         return (float) Math.cos(2 * Math.PI * this.carrierFrequency * t);
     }
 
-    private long getVal(int levels) {
+    private byte getVal(int levels) {
+        // Find the average values for this symbol frame.
         float avgI = this.sumAmpI / this.samplesPerSymbolPeriod;
         float avgQ = this.sumAmpQ / this.samplesPerSymbolPeriod;
 
+        // Find the integer value that the amplitude represents.
         int iVal = (byte) 0xFF, qVal = (byte) 0xFF;
         float div = this.carrierAmplitude / levels;
         for (byte i = 0; i < levels; i++) {
             float correctVal = i * div - 0.5f * div;
-            if (avgI > correctVal - 0.5f * div && avgI < correctVal + 0.5f * div)
-                iVal = i;
-            if (avgQ > correctVal - 0.5f * div && avgQ < correctVal + 0.5f * div)
-                qVal = i;
+            if (avgI > correctVal - 0.5f * div && avgI < correctVal + 0.5f * div)   iVal = i;
+            if (avgQ > correctVal - 0.5f * div && avgQ < correctVal + 0.5f * div)   qVal = i;
         }
         qVal <<= this.bitsPerSymbol / 2;
 
         byte val = (byte) (qVal + iVal);
+        // Due to modulation, byte is reversed.
         return Maths.reverseByte(val);
     }
 
@@ -92,22 +92,14 @@ public class QAMDemodulator extends Demodulator {
         int frame = (int) (t / this.symbolPeriod);
         if (this.transitions != frame) {
             this.transitions++;
-            long val = getVal(this.levels);
+            byte val = getVal(this.levels);
 
-            this.current8Bytes <<= this.bitsPerSymbol;
-            this.current8Bytes |= val;
+            this.currentByte <<= this.bitsPerSymbol;
+            this.currentByte |= val;
 
-            // For simplicity assume that bitsPerSymbol is either a multiple or exact divisor of 8, up to 64.
-            // todo enforce this in simulatorsettings
-            if (this.bitsPerSymbol <= 8 && (this.transitions * this.bitsPerSymbol) % 8 == 0) {
-                this.buffer.addData((byte) this.current8Bytes);
-            } else if (this.bitsPerSymbol > 8) {
-                long bitMask = 0xFFL << this.bitsPerSymbol;
-                for (int i = 0; i < this.bitsPerSymbol / 8; i++) {
-                    this.buffer.addData((byte) ((this.current8Bytes & bitMask) >> this.bitsPerSymbol));
-                    this.current8Bytes >>= 8;
-                }
-            }
+            // For simplicity assume that bitsPerSymbol is an exact divisor of 8.
+            if (this.bitsPerSymbol <= 8 && (this.transitions * this.bitsPerSymbol) % 8 == 0)
+                this.buffer.addData(this.currentByte);
 
             this.sumAmpI = 0;
             this.sumAmpQ = 0;

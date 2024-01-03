@@ -18,13 +18,13 @@ public class SimulatorSettings extends Frame implements Runnable {
     private static final Dimension PADDING = new Dimension(20, 60);
 
     private final Menu modulatorMenu = new Menu("Choose modulator...");
-    private final Button applySettingsButton = new Button("Apply");
     private final Button runSimulationButton = new Button("Simulate");
+    private final Label modulatorLabel = new Label();
     private final ArrayList<String> modulatorParameters = new ArrayList<>();
     public final Object lock = new Object();
     private final HashMap<String, Pair<Label, TextField>> parameterInputs = new HashMap<>();
     private String[] parameterNames;    // Must store names as an array to preserve ordering, since HashMaps are unordered.
-    private ModulatorType chosenModulator = ModulatorType.QAM;
+    private ModulatorType chosenModulator = ModulatorType.QAM16;
     private boolean finished = false;
 
     private static class ModulatorMenuItem extends MenuItem {
@@ -46,14 +46,14 @@ public class SimulatorSettings extends Frame implements Runnable {
         switch (this.chosenModulator) {
             case ASK:
                 return ModulatorFactory.createASKModulator(this.modulatorParameters);
-            case QAM:
+            case QAM16:
                 return ModulatorFactory.createQAMModulator(this.modulatorParameters);
         }
 
         return null;
     }
 
-    private final ActionListener applySettings = e -> {
+    private void applySettings() {
         ArrayList<String> params = new ArrayList<>();
         // Get each parameter from parameterInputs
         for (String s : this.parameterNames) {
@@ -67,10 +67,10 @@ public class SimulatorSettings extends Frame implements Runnable {
         // empty input.
         this.modulatorParameters.clear();
         this.modulatorParameters.addAll(params);
-    };
+    }
 
     private final ActionListener runSimulation = e -> {
-        this.applySettings.actionPerformed(null);
+        applySettings();
         if (this.modulatorParameters.isEmpty()) return;
 
         synchronized (this.lock) {
@@ -92,7 +92,9 @@ public class SimulatorSettings extends Frame implements Runnable {
 
         this.parameterNames = parameters;
 
-        int pos = PADDING.height;
+        this.modulatorLabel.setText(this.chosenModulator.toString());
+
+        int pos = this.modulatorLabel.getY() + this.modulatorLabel.getHeight();
         for (int i = 0; i < parameters.length; i++) {
             String param = parameters[i];
             String paramDefault = parameterDefaults[i];
@@ -122,18 +124,17 @@ public class SimulatorSettings extends Frame implements Runnable {
         this.setResizable(false);
         this.setSize(2 * PADDING.width + 2 * PARAMS_SIZE.width, 900);
 
+        this.modulatorLabel.setSize(PARAMS_SIZE);
+        this.modulatorLabel.setLocation(PADDING.width, PADDING.height);
+        this.modulatorLabel.setVisible(true);
+        this.add(this.modulatorLabel);
+
         String[] parameters = ModulatorType.getParameters(this.chosenModulator);
         String[] parameterDefaults = ModulatorType.getParameterDefaults(this.chosenModulator);
         createParamInputs(parameters, parameterDefaults);
 
-        this.applySettingsButton.setSize(PARAMS_SIZE.width / 2, PARAMS_SIZE.height);
-        this.applySettingsButton.setLocation(this.getWidth() - this.applySettingsButton.getWidth() - PADDING.width, this.getHeight() - this.applySettingsButton.getHeight() - PADDING.height);
-        this.applySettingsButton.addActionListener(this.applySettings);
-        this.applySettingsButton.setVisible(true);
-        this.add(this.applySettingsButton);
-
         this.runSimulationButton.setSize(PARAMS_SIZE.width / 2, PARAMS_SIZE.height);
-        this.runSimulationButton.setLocation(this.getWidth() - PARAMS_SIZE.width - PADDING.width, this.getHeight() - this.runSimulationButton.getHeight() - PADDING.height);
+        this.runSimulationButton.setLocation(this.getWidth() - this.runSimulationButton.getWidth() - PADDING.width, this.getHeight() - this.runSimulationButton.getHeight() - PADDING.height);
         this.runSimulationButton.addActionListener(this.runSimulation);
         this.runSimulationButton.setVisible(true);
         this.add(this.runSimulationButton);
@@ -143,6 +144,7 @@ public class SimulatorSettings extends Frame implements Runnable {
             ModulatorMenuItem mi = new ModulatorMenuItem(mt.name(), mt);
             mi.addActionListener(e -> {
                 this.chosenModulator = mi.getType();
+                System.out.println(this.chosenModulator);
                 createParamInputs(ModulatorType.getParameters(mi.getType()), ModulatorType.getParameterDefaults(mi.getType()));
             });
 

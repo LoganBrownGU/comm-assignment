@@ -25,12 +25,11 @@ public class ModulatorFactory {
         float carrierFrequency = Float.parseFloat(parameters.get(0));
         float modulationFrequency = Float.parseFloat(parameters.get(1));
         float carrierAmplitude = Float.parseFloat(parameters.get(2));
-        float order = Integer.parseInt(parameters.get(3));
 
         // Limit bandwidth to 20% of carrier frequency.
         Filter filter = new Filter((int) (carrierFrequency * 0.9), (int) (carrierFrequency * 1.1));
 
-        return new QAMModulator(carrierFrequency, modulationFrequency, carrierAmplitude, order, filter);
+        return new QAMModulator(carrierFrequency, modulationFrequency, carrierAmplitude, filter);
     }
 
     public static Demodulator getDemodulator(Modulator modulator, float[] samples, float timeStep) {
