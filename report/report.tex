@@ -40,7 +40,7 @@ The system may be visualised using the diagram below.
 Two modulation formats were implemented: Amplitude Shift Keying (ASK), and Quadrature Amplitude Modulation (QAM). I also intended to implement Frequency Shift Keying, but this was not possible due to the time constraints imposed by the rest of the project. Unfortunately, I was not able to get either format quite working properly, as they seem to work fine for the first frames of the GIF, but then degrade for the later ones. However, as they behave as expected for the first frames of the GIF (transmitting well over the 2048 bit requirement in that time), useful results were still obtained.
 
 \section{Results}
-The three most important metrics of a good modulation scheme are the bit error rate (BER), the spectral efficiency, and the transmission rate. Any modulation scheme will make a tradeoff between these three, but some do better in this regard than others. For each of the following tests, the carrier frequency was set to 10 kHz, the modulation frequency was set to 1 kHz, and the carrier amplitude was set to 100 units. For ASK, the depth used was 0.5 (as a fraction of the carrier amplitude), and for QAM the order was 16.   
+The three most important metrics of a good modulation scheme are the bit error rate (BER), the spectral efficiency, and the transmission rate. Any modulation scheme will make a tradeoff between these three, but some do better in this regard than others. For each of the following tests, the carrier frequency ($f_c$) was set to 10 kHz, the modulation frequency ($f_m$) was set to 1 kHz, and the carrier amplitude ($A$) was set to 100 units. For ASK, the depth ($d$) used was 0.5 (as a fraction of the carrier amplitude), and for QAM the order was 16.   
 
 \subsection{Bit error rate (BER)}
 From five transmissions of five frames:
@@ -60,6 +60,16 @@ QAM appears to have some baseline bit error as opposed to ASK (which has 0 bit e
 
 \subsection{Spectral efficiency}
 To test the spectral efficiency of the two formats, the BER of each was measured for a number of different bandwidths, each a percentage of the carrier frequency. 
+
+\begin{center}
+    \begin{tabular}{|c|c|c|}
+        \hline
+                 & \multicolumn{2}{c|}{Modulation Scheme}         \\ \hline
+                 & ASK                                    & QAM   \\ \hline
+        Bandwidth (\% of $f_c$) & \multicolumn{2}{c|}{BER (mean)}                \\ \hline
+
+    \end{tabular}
+\end{center}
 
 
 \end{document}

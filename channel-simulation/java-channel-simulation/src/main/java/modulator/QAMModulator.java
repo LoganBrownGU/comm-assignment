@@ -75,6 +75,10 @@ public class QAMModulator extends Modulator {
         super(carrierFrequency, modulationFrequency, carrierAmplitude);
     }
 
+    public QAMModulator(float carrierFrequency, float modulationFrequency, float carrierAmplitude, Filter outputFilter) {
+        super(carrierFrequency, modulationFrequency, carrierAmplitude, outputFilter);
+    }
+
     public float getOrder() {
         return this.order;
     }

@@ -25,6 +25,14 @@ public abstract class Modulator {
         this.outputFilter = new Filter((int) (carrierFrequency * 0.9f), (int) (carrierFrequency * 1.1f));
     }
 
+    public Modulator(float carrierFrequency, float modulationFrequency, float carrierAmplitude, Filter outputFilter) {
+        this.carrierFrequency = carrierFrequency;
+        this.modulationFrequency = modulationFrequency;
+        this.carrierAmplitude = carrierAmplitude;
+        this.outputFilter = outputFilter;
+    }
+
+
     public float getCarrierFrequency() {
         return this.carrierFrequency;
     }

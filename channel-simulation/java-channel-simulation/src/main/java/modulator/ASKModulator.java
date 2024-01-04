@@ -50,6 +50,11 @@ public class ASKModulator extends Modulator {
         this.depth = depth;
     }
 
+    public ASKModulator(float carrierFrequency, float modulationFrequency, float carrierAmplitude, Filter outputFilter, float depth) {
+        super(carrierFrequency, modulationFrequency, carrierAmplitude, outputFilter);
+        this.depth = depth;
+    }
+
     public float getDepth() {
         return this.depth;
     }

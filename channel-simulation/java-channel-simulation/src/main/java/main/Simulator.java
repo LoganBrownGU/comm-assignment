@@ -5,6 +5,8 @@ import display.SimulatorSettings;
 import display.SimulatorView;
 import modulator.Modulator;
 import modulator.ModulatorFactory;
+import modulator.QAMModulator;
+import util.Filter;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -14,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Random;
 
 public class Simulator {
 
@@ -111,7 +114,28 @@ public class Simulator {
         return simulatorView.getChangeSettings();
     }
 
+    public static byte[] generateData() {
+        Random rd = new Random();
+        int size = 1024;
+        byte[] data = new byte[size];
+        rd.nextBytes(data);
+        return data;
+    }
+
+    public static void testBandwidth() {
+        byte[] data = generateData();
+
+        for (float pc = 100; pc >= 20; pc -= 20) {
+            float f_c = 10_000;
+            Filter outputFilter = new Filter((int) (f_c * (1f - pc * 0.5f)), (int) (f_c * (1f + pc * 0.5f)));
+            Modulator modulator = new QAMModulator(f_c, f_c / 10, 100, outputFilter);
+            float timeStep = 0.01f / modulator.getModulationFrequency();
+            modulator.calculate(data, timeStep);
+        }
+    }
+
     public static void main(String[] args) throws InterruptedException {
-        while (simulate());
+        //while (simulate());
+        testBandwidth();
     }
 }
