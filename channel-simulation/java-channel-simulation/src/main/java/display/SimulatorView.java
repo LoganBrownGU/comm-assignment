@@ -25,7 +25,7 @@ public class SimulatorView extends Frame implements Runnable {
     private boolean finished = false, demodulationFinished = false, changeSettings = false;
     private float noiseRMS;
 
-    private float findBER(byte[] input, byte[] output) {
+    public static float findBER(byte[] input, byte[] output) {
         if (output.length != input.length) throw new IllegalArgumentException("input data must be same size as output data");
 
         int errors = 0;

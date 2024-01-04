@@ -1,9 +1,8 @@
 package util;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtilities;
-import org.jfree.chart.JFreeChart;
+import org.jfree.chart.*;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -33,11 +32,12 @@ public class Plotter {
         }
     }
 
-    public static void plot(String plotName, String path, String xLabel, String yLabel, XYDataItem dimensions, XYDataItem[][] points) {
+    public static void plot(String plotName, String path, String xLabel, String yLabel, XYDataItem dimensions, XYDataItem[][] points, String[] legendNames) {
         System.out.println("plotting...");
         XYSeriesCollection dataset = new XYSeriesCollection();
+        int i = 0;
         for (XYDataItem[] arr : points) {
-            XYSeries series = new XYSeries("");
+            XYSeries series = new XYSeries(legendNames[i++]);
             for (XYDataItem p : arr)
                 series.add(p);
             dataset.addSeries(series);

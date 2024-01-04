@@ -3,10 +3,13 @@ package main;
 import demodulator.Demodulator;
 import display.SimulatorSettings;
 import display.SimulatorView;
+import modulator.ASKModulator;
 import modulator.Modulator;
 import modulator.ModulatorFactory;
 import modulator.QAMModulator;
+import org.jfree.data.xy.XYDataItem;
 import util.Filter;
+import util.Plotter;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -122,16 +125,56 @@ public class Simulator {
         return data;
     }
 
-    public static void testBandwidth() {
-        byte[] data = generateData();
+    private static float findBER(Modulator modulator, byte[] inputData) {
+        float timeStep = 0.01f / modulator.getModulationFrequency();
 
-        for (float pc = 100; pc >= 20; pc -= 20) {
+        float[] samples = modulator.calculate(inputData, timeStep);
+        Demodulator demodulator = ModulatorFactory.getDemodulator(modulator, timeStep);
+        demodulator.initialCalculate(samples);
+        for (int j = 0; j < samples.length; j++) demodulator.next(0);
+
+        byte[] outputData = new byte[inputData.length];
+        int size = demodulator.buffer.getSize();
+        System.arraycopy(demodulator.buffer.getChunk(size), 0, outputData, 0, size);
+
+        /*if (modulator instanceof QAMModulator) {
+            System.out.println(Integer.toBinaryString(Byte.toUnsignedInt(inputData[100])) + " " + Integer.toBinaryString(Byte.toUnsignedInt(inputData[101])));
+            System.out.println(Integer.toBinaryString(Byte.toUnsignedInt(outputData[100])) + " " + Integer.toBinaryString(Byte.toUnsignedInt(outputData[101])));
+        }*/
+
+        return SimulatorView.findBER(inputData, outputData);
+    }
+
+    public static void testBandwidth() {
+        byte[] inputData = readImages("assets/frames", 1);
+
+        int dataPoints = 50;
+        float start = 0.05f;
+        float end = 0.2f;
+        XYDataItem[] qamData = new XYDataItem[dataPoints];
+        XYDataItem[] askData = new XYDataItem[dataPoints];
+
+        int i = 0;
+        for (float pc = start; pc <= end; pc += (end - start) / dataPoints, i++) {
+            System.out.print((i+1) + "/" + dataPoints);
             float f_c = 10_000;
+
             Filter outputFilter = new Filter((int) (f_c * (1f - pc * 0.5f)), (int) (f_c * (1f + pc * 0.5f)));
             Modulator modulator = new QAMModulator(f_c, f_c / 10, 100, outputFilter);
-            float timeStep = 0.01f / modulator.getModulationFrequency();
-            modulator.calculate(data, timeStep);
+            float ber = findBER(modulator, inputData);
+            qamData[i] = new XYDataItem(pc * 100, ber);
+
+            modulator = new ASKModulator(f_c, f_c / 10, 100, outputFilter, 0.5f);
+            ber = findBER(modulator, inputData);
+            askData[i] = new XYDataItem(pc * 100, ber);
+            System.out.print("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
         }
+
+        XYDataItem[][] data = new XYDataItem[2][];
+        data[0] = qamData;
+        data[1] = askData;
+        Plotter.plot("BER vs Bandwidth", "../../report/figures/bandwidth.png", "Bandwidth (% of f_c)",
+                "BER", new XYDataItem(1600, 900), data, new String[]{"QAM", "ASK"});
     }
 
     public static void main(String[] args) throws InterruptedException {

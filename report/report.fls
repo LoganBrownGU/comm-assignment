@@ -438,6 +438,11 @@ INPUT ./figures/system-diagram.png
 OUTPUT report.pdf
 INPUT ./figures/system-diagram.png
 INPUT /var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map
+INPUT ./figures/bandwidth.png
+INPUT ./figures/bandwidth.png
+INPUT figures/bandwidth.png
+INPUT ./figures/bandwidth.png
+INPUT ./figures/bandwidth.png
 INPUT report.aux
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb
