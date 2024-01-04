@@ -45,8 +45,8 @@ public class ASKModulator extends Modulator {
         return (float) (this.carrierAmplitude / Math.sqrt(2));
     }
 
-    public ASKModulator(float carrierFrequency, float modulationFrequency, float carrierAmplitude, float depth, Filter outputFilter) {
-        super(carrierFrequency, modulationFrequency, carrierAmplitude, outputFilter);
+    public ASKModulator(float carrierFrequency, float modulationFrequency, float carrierAmplitude, float depth) {
+        super(carrierFrequency, modulationFrequency, carrierAmplitude);
         this.depth = depth;
     }
 

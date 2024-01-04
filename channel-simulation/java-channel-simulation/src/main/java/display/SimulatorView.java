@@ -71,17 +71,20 @@ public class SimulatorView extends Frame implements Runnable {
 
         Dimension sliderLabelSize = new Dimension(50, 20);
 
+
+        int initialSNR = 24;
         this.snrSlider.setSize(IMAGE_DISPLAY_SIZE.width, 20);
         this.snrSlider.setLocation(this.getWidth() / 2 - this.snrSlider.getWidth() / 2, (int) (this.getHeight() - sliderLabelSize.height * 2.3));
         this.snrSlider.setVisible(true);
         this.snrSlider.setMinimum(minSNR);
         this.snrSlider.setMaximum(maxSNR);
-        this.snrSlider.setValue(minSNR + (maxSNR - minSNR) / 2);
+        this.snrSlider.setValue(initialSNR);
         this.snrSlider.addChangeListener(e -> {
             this.snrDisplay.setText(this.snrSlider.getValue() + " dB");
             this.noiseRMS = this.modulator.getRMS() / (float) Math.pow(10, (double) this.snrSlider.getValue() / 20);
         });
         this.add(this.snrSlider);
+        this.noiseRMS = this.modulator.getRMS() / (float) Math.pow(10, (double) this.snrSlider.getValue() / 20);
 
         Label sliderLabel = new Label(minSNR + " dB");
         sliderLabel.setAlignment(Label.RIGHT);
@@ -132,6 +135,7 @@ public class SimulatorView extends Frame implements Runnable {
     public void run() {
         init();
 
+        int count = 0;
         while (!this.finished) {
             // When DemodulationController has finished, it will set demodulationFinished to true.
             // Since it is possible that the demodulation buffer will be empty at the start of a new run of the GIF,
@@ -152,6 +156,7 @@ public class SimulatorView extends Frame implements Runnable {
             byte[] outputData = this.demodulator.buffer.getChunk(this.outputDisplay.getImageWidth() * this.outputDisplay.getImageHeight() * 3);
             this.outputDisplay.paint(outputData);
             this.berDisplay.setText(Float.toString(findBER(inputData, outputData)));
+            if (count++ < 5) System.out.println(findBER(inputData, outputData));
 
             try {
                 Thread.sleep(this.updatePeriod);
