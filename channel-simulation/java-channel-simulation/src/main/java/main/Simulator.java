@@ -9,13 +9,16 @@ import modulator.ModulatorFactory;
 import modulator.QAMModulator;
 import org.jfree.data.xy.XYDataItem;
 import util.Filter;
+import util.Pair;
 import util.Plotter;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -68,7 +71,7 @@ public class Simulator {
         return new Dimension(width, height);
     }
 
-    public static boolean simulate() throws InterruptedException {
+    private static boolean simulate() throws InterruptedException {
         SimulatorSettings simulatorSettings = new SimulatorSettings();
         simulatorSettings.run();
         // Wait for simulator settings to finish.
@@ -117,7 +120,7 @@ public class Simulator {
         return simulatorView.getChangeSettings();
     }
 
-    public static byte[] generateData() {
+    private static byte[] generateData() {
         Random rd = new Random();
         int size = 1024;
         byte[] data = new byte[size];
@@ -145,6 +148,22 @@ public class Simulator {
         return SimulatorView.findBER(inputData, outputData);
     }
 
+    private static void writeData(String name, String path, XYDataItem[] data, Pair<String, String> headings) {
+        try {
+            File f = new File(path);
+            BufferedWriter bf = new BufferedWriter(new FileWriter(f));
+            bf.write(name + "\n");
+            bf.write(headings.first + "," + headings.second + "\n");
+
+            for (XYDataItem di : data)
+                bf.write(di.getX() + "," + di.getY() + "\n");
+
+            bf.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void testBandwidth() {
         byte[] inputData = readImages("assets/frames", 1);
 
@@ -170,11 +189,8 @@ public class Simulator {
             System.out.print("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
         }
 
-        XYDataItem[][] data = new XYDataItem[2][];
-        data[0] = qamData;
-        data[1] = askData;
-        Plotter.plot("BER vs Bandwidth", "../../report/figures/bandwidth.png", "Bandwidth (% of f_c)",
-                "BER", new XYDataItem(1600, 900), data, new String[]{"QAM", "ASK"});
+        writeData("QAM", "assets/qam.csv", qamData, new Pair<>("Bandwidth (% of $f_c$)", "BER"));
+        writeData("ASK", "assets/ask.csv", askData, new Pair<>("Bandwidth (% of $f_c$)", "BER"));
     }
 
     public static void main(String[] args) throws InterruptedException {
