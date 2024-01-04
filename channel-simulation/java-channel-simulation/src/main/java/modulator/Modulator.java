@@ -10,7 +10,7 @@ public abstract class Modulator {
     // Array of default parameters for use by SimulatorSettings class - all concrete Modulators will have these.
     public static final String[] parameters = {"carrier frequency", "modulation frequency", "carrier amplitude"};
     // Array of default values for each parameter.
-    public static final String[] parameterDefaults = {"100000", "10000", "100"};
+    public static final String[] parameterDefaults = {"1000000", "100000", "100"};
     public final Buffer buffer = new Buffer();
 
     public abstract float[] calculate(byte[] data, float timeStep);
