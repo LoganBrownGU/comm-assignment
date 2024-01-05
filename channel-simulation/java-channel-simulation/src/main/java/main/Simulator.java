@@ -7,7 +7,6 @@ import modulator.ASKModulator;
 import modulator.Modulator;
 import modulator.ModulatorFactory;
 import modulator.QAMModulator;
-import org.jfree.data.xy.XYDataItem;
 import util.Filter;
 import util.Pair;
 
@@ -137,15 +136,15 @@ public class Simulator {
         return SimulatorView.findBER(inputData, outputData);
     }
 
-    private static void writeData(String name, String path, XYDataItem[] data, Pair<String, String> headings) {
+    private static void writeData(String name, String path, Pair<Float, Float>[] data, Pair<String, String> headings) {
         try {
             File f = new File(path);
             BufferedWriter bf = new BufferedWriter(new FileWriter(f));
             bf.write(name + "\n");
             bf.write(headings.first + "," + headings.second + "\n");
 
-            for (XYDataItem di : data)
-                bf.write(di.getX() + "," + di.getY() + "\n");
+            for (Pair<Float, Float> di : data)
+                bf.write(di.first + "," + di.second + "\n");
 
             bf.close();
         } catch (IOException e) {
@@ -156,7 +155,7 @@ public class Simulator {
     private static void graphMods() {
         byte[] data = {(byte) 0xFA, (byte) 0x50, (byte) 0xf4};
         int samplesToGraph = 4000;
-        XYDataItem[] qamData = new XYDataItem[samplesToGraph], askData = new XYDataItem[samplesToGraph];
+        Pair<Float, Float>[] qamData = new Pair[samplesToGraph], askData = new Pair[samplesToGraph];
 
         float f_c = 1_000_000;
         QAMModulator qamModulator = new QAMModulator(f_c, f_c / 10, 100);
@@ -168,13 +167,13 @@ public class Simulator {
         Random rd = new Random();
         float noiseRMS = qamModulator.getRMS() / (float) Math.pow(10, (double) snr / 20);
         for (int i = 0; i < samplesToGraph; i++)
-            qamData[i] = new XYDataItem(i * timeStep * 1_000_000, samples[i] + rd.nextGaussian() * noiseRMS);
+            qamData[i] = new Pair<>(i * timeStep * 1_000_000, (float) (samples[i] + rd.nextGaussian() * noiseRMS));
 
         data = new byte[]{(byte) 0x55};
         samples = askModulator.calculate(data, timeStep);
         noiseRMS = askModulator.getRMS() / (float) Math.pow(10, (double) snr / 20);
         for (int i = 0; i < samplesToGraph; i++)
-            askData[i] = new XYDataItem(i * timeStep * 1_000_000, samples[i] + rd.nextGaussian() * noiseRMS);
+            askData[i] = new Pair<>(i * timeStep * 1_000_000, (float) (samples[i] + rd.nextGaussian() * noiseRMS));
 
         writeData("QAM", "assets/qam_samples.csv", qamData, new Pair<>("time (\\mus)", "Amplitude"));
         writeData("ASK", "assets/ask_samples.csv", askData, new Pair<>("time (\\mus)", "Amplitude"));
@@ -186,8 +185,8 @@ public class Simulator {
         int dataPoints = 50;
         float start = 0.05f;
         float end = 0.2f;
-        XYDataItem[] qamData = new XYDataItem[dataPoints];
-        XYDataItem[] askData = new XYDataItem[dataPoints];
+        Pair<Float, Float>[] qamData = new Pair[dataPoints];
+        Pair<Float, Float>[] askData = new Pair[dataPoints];
 
         int i = 0;
         for (float pc = start; pc <= end; pc += (end - start) / dataPoints, i++) {
@@ -198,11 +197,11 @@ public class Simulator {
             Filter outputFilter = new Filter((int) (f_c * (1f - pc * 0.5f)), (int) (f_c * (1f + pc * 0.5f)));
             Modulator modulator = new QAMModulator(f_c, f_c / 10, 100, outputFilter);
             float ber = findBER(modulator, inputData);
-            qamData[i] = new XYDataItem(pc * 100, ber);
+            qamData[i] = new Pair<>(pc * 100, ber);
 
             modulator = new ASKModulator(f_c, f_c / 10, 100, outputFilter, 0.5f);
             ber = findBER(modulator, inputData);
-            askData[i] = new XYDataItem(pc * 100, ber);
+            askData[i] = new Pair<>(pc * 100, ber);
         }
 
         writeData("QAM", "assets/qam.csv", qamData, new Pair<>("Bandwidth (% of $f_c$)", "BER"));
