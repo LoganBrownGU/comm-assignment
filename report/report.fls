@@ -438,6 +438,11 @@ INPUT ./figures/system-diagram.png
 OUTPUT report.pdf
 INPUT ./figures/system-diagram.png
 INPUT /var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map
+INPUT ./figures/modulation.png
+INPUT ./figures/modulation.png
+INPUT figures/modulation.png
+INPUT ./figures/modulation.png
+INPUT ./figures/modulation.png
 INPUT ./figures/bandwidth.png
 INPUT ./figures/bandwidth.png
 INPUT figures/bandwidth.png

@@ -16,10 +16,9 @@
 \maketitle
 \section{Overview}
 \subsection{Simulation}
-The main aim of this simulation was to be able to visualise the demodulation of a GIF happening in real time, with the option to dynamically alter the signal-to-noise ratio (SNR) of the system, using Additive Gaussian White Noise (AGWN). The two key constraints imposed by this were the memory usage of the program, and the speed of processing the simulation.
+The main aim of this simulation was to be able to visualise the demodulation of an animated GIF happening in real-time, with the option to dynamically alter the signal-to-noise ratio (SNR) of the system, using Additive Gaussian White Noise (AGWN). The two key constraints imposed by this were the memory usage of the program, and the speed of processing the simulation.
 
-With a simulation not done in real time, there is no real limit imposed by the speed of processing the simulation, other than the user's patience. However, when simulating in real time, the simulation has to run fast enough that the demodulation can happen at least as fast as real time.
-
+With a simulation not done in real-time, there is no hard limit imposed by the speed of processing the simulation, other than the user's patience. However, when simulating in real-time, the simulation has to run fast enough that simulating demodulation can happen at least as fast as it would in reality.
 As well as this, a GIF contains a large amount of data, which quickly eats up memory when simulating its transmission. If the sampling rate is 100 times the bit transmission rate, and 64-bit floating point numbers are used, then simulating the transmission of a 400x400 pixel GIF containing 50 frames with a colour depth of 3 bytes would require 3 gigabytes of memory.
 
 \begin{equation}
@@ -31,16 +30,23 @@ As well as this, a GIF contains a large amount of data, which quickly eats up me
 
 To make this simulation work, a few tradeoffs had to be made: the resolution of the GIF was set to 40x40 pixels; the modulation of the signal, as well as any filtering on the receiving end, would be done ahead of time; and lower-precision (32-bit) floating point numbers would be used. To avoid dealing with frequency scaling issues, the samples were split into 1 second bins before performing the Fast Fourier Transform (FFT) required for frequency filtering, which also meant that the memory usage was much lower, since it did not require copying the whole sample space at once. In addition to this, AGWN has frequency components across the spectrum, and as such it does not matter whether it is added before or after filtering. I chose to write the simulation code in Java, as it gives more control over memory usage and lower level operations, as well as executing significantly faster. Since this is a relatively complex project, it was also helpful to have a language which scales much better than either Python or Mathematica.
 
-The system may be visualised using the diagram below. 
-
 \noindent
-\includegraphics[width=\textwidth]{figures/system-diagram.png}
+\begin{figure}[h]
+    \includegraphics[width=\linewidth]{figures/system-diagram.png}
+    \caption{Diagram of system}
+\end{figure}
 
 \subsection{Modulation}
-Two modulation formats were implemented: Amplitude Shift Keying (ASK), and Quadrature Amplitude Modulation (QAM). I also intended to implement Frequency Shift Keying, but this was not possible due to the time constraints imposed by the rest of the project. Unfortunately, I was not able to get either format quite working properly, as they seem to work fine for the first frames of the GIF, but then degrade for the later ones. However, as they behave as expected for the first frames of the GIF (transmitting well over the 2048 bit requirement in that time), useful results were still obtained.
+Two modulation formats were implemented: Amplitude Shift Keying (ASK), and Quadrature Amplitude Modulation (QAM). I also intended to implement Frequency Shift Keying, but this was not possible due to the time constraints imposed by the rest of the project. Unfortunately, I was not able to get either format quite working properly, as they seem to work fine for the first frames of the GIF, but then degrade for the later ones. However, as they behave as expected for the first frames of the GIF (transmitting well over the 2048 bit requirement in that time), useful results were still obtained. For the simulation, the carrier frequency ($f_c$) was set to 1 MHz, the modulation frequency ($f_m$) was set to 100 kHz (effectively the baud rate), and the carrier amplitude ($A$) was set to 100 units. For ASK, the depth ($d$) used was 0.5 (as a fraction of $A$), and for QAM the order was 16. These frequencies were chosen because it was important to have the modulation formats transmit the information in a realistic timeframe for real-time demodulation, and a lower ASK modulation depth gives a smaller bandwidth requirement.
+
+\noindent
+\begin{figure}[h]
+    \includegraphics[width=\linewidth]{figures/modulation.png}
+    \caption{Comparison of ASK and QAM}
+\end{figure}
 
 \section{Results}
-The three most important metrics of a good modulation scheme are the bit error rate (BER), the spectral efficiency, and the transmission rate. Any modulation scheme will make a tradeoff between these three, but some do better in this regard than others. For each of the following tests, the carrier frequency ($f_c$) was set to 1 MHz, the modulation frequency ($f_m$) was set to 100 kHz, and the carrier amplitude ($A$) was set to 100 units. For ASK, the depth ($d$) used was 0.5 (as a fraction of the carrier amplitude), and for QAM the order was 16.   
+The three most important metrics of a good modulation scheme are the transmission rate, the bit error rate (BER), and the spectral efficiency. Any modulation scheme will make a tradeoff between these three, but some do better in this regard than others. 
 
 \subsection{Bit error rate (BER)}
 From five transmissions of five frames:
@@ -58,15 +64,30 @@ From five transmissions of five frames:
 
 QAM appears to have some baseline bit error as opposed to ASK (which has 0 bit errors at high SNR), but is less susceptible to noise, with a much lower BER at 6 dB than ASK. I believe the baseline BER of QAM may be due to either an error in my implementation of the scheme, or due to the inherent innaccuracies of the simulation, either in the lower-precision floating point numbers, or the FFT implementation.
 
+\subsection{Transmission rate}
+To demonstrate the difference in transmission rate between the two, we can compare the time taken to send the first frame of the GIF. While ASK takes 0.384 seconds to transmit the frame, QAM takes just 0.096 seconds.
+However, given the higher BER of my implementation of QAM, receiving a correct frame would in reality take longer, as the errors would require retransmission to correct. 
+
 \subsection{Spectral efficiency}
-To test the spectral efficiency of the two formats, the BER of each was measured for a number of different bandwidths, each a percentage of the carrier frequency. 
+To test the spectral efficiency of the two formats, the BER of transmitting the first frame of the GIF was measured for a number of different bandwidths. The percentage of $f_c$ refers to the bandwidth set to a fraction of the carrier frequency, centered on the carrier frequency. E.g. if the carrier frequency is 100 kHz and the percentage bandwidth is 10\%, then the lower cutoff would be 95 kHz and the upper cutoff would be 105 kHz.
 
 \noindent
-\includegraphics[width=\textwidth]{figures/bandwidth.png}
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[width=0.7\linewidth]{figures/bandwidth.png}
+    \end{center}
+    \caption{BER as a function of bandwidth}
+\end{figure}
 
 It can be seen that although QAM again shows a baseline BER, it reaches its minimum BER at a lower bandwidth than ASK, showing it is slightly more spectrally efficient. 
 
-\subsection{Transmission rate}
-To demonstrate the difference in transmission rate between the two, we can compare the time taken to send the first frame of the GIF. While ASK takes 0.384 seconds to transmit the frame, QAM takes just 0.096 seconds. 
+\section{Conclusion}
+From these experiments, QAM would appear to be more accurate at higher SNR than ASK. However, this does not make sense, as 16-QAM is effectively 4-level ASK, modulated onto two carrier waves, and as such should be more susceptible to noise (as is seen in real QAM systems). This suggests a flaw in my implementation of the simulation.
+
+The major advantage of QAM over ASK is clearly demonstrated by the transmission rates. The time taken to transmit one frame of the GIF by QAM is exactly a quarter that of ASK. This would be expected, since 16-QAM can transmit 4 bits per symbol to ASK's 1, and they both have the same baud rate in the experiment.  
+
+QAM and ASK have similar bandwidth requirements, which makes sense as again QAM is effectively two-phase ASK. This demonstrates an advantage of QAM, in that it can transmit more data in the same bandwidth than ASK. 
+
+Assuming that I haven't accidentally invented a version of QAM which has a magically higher noise tolerance, and in reality there is a problem with my implementation that causes the noise level to be calculated incorrectly, the results from the experiments show why QAM is used in the way it is in the real world. Lower order QAM systems are often used in higher noise applications, usually free space applications like radio. Higher order QAM is used in fibre optics, since the noise in these systems is very low, and as such it makes sense to cram as much data into the available bandwidth as possible. Assuming the issues with the QAM simulation could be worked out, a simulation system similar to this would be useful for testing different configurations of QAM for different applications, without having to build a real system.  
 
 \end{document}

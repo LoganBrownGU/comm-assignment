@@ -21,6 +21,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Random;
 
 public class Simulator {
 
@@ -86,8 +87,8 @@ public class Simulator {
         }
         byte[] data = readImages(path, framesToPlay);
         Dimension imageSize = readImageSize(path);
-        // Set timeStep so that there are 100 samples per bit frame.
-        float timeStep = 0.01f / modulator.getModulationFrequency();
+        // Set timeStep so that the sample frequency is ten times the carrier frequency.
+        float timeStep = 0.1f / modulator.getCarrierFrequency();
         int framerate = 25;
 
         System.out.println("modulating...");
@@ -152,6 +153,33 @@ public class Simulator {
         }
     }
 
+    private static void graphMods() {
+        byte[] data = {(byte) 0xFA, (byte) 0x50, (byte) 0xf4};
+        int samplesToGraph = 4000;
+        XYDataItem[] qamData = new XYDataItem[samplesToGraph], askData = new XYDataItem[samplesToGraph];
+
+        float f_c = 1_000_000;
+        QAMModulator qamModulator = new QAMModulator(f_c, f_c / 10, 100);
+        ASKModulator askModulator = new ASKModulator(qamModulator.getCarrierFrequency(), qamModulator.getModulationFrequency(), qamModulator.getCarrierAmplitude(), 0.5f);
+        float timeStep = 0.01f / qamModulator.getCarrierFrequency();
+
+        float[] samples = qamModulator.calculate(data, timeStep);
+        float snr = 24;
+        Random rd = new Random();
+        float noiseRMS = qamModulator.getRMS() / (float) Math.pow(10, (double) snr / 20);
+        for (int i = 0; i < samplesToGraph; i++)
+            qamData[i] = new XYDataItem(i * timeStep * 1_000_000, samples[i] + rd.nextGaussian() * noiseRMS);
+
+        data = new byte[]{(byte) 0x55};
+        samples = askModulator.calculate(data, timeStep);
+        noiseRMS = askModulator.getRMS() / (float) Math.pow(10, (double) snr / 20);
+        for (int i = 0; i < samplesToGraph; i++)
+            askData[i] = new XYDataItem(i * timeStep * 1_000_000, samples[i] + rd.nextGaussian() * noiseRMS);
+
+        writeData("QAM", "assets/qam_samples.csv", qamData, new Pair<>("time (\\mus)", "Amplitude"));
+        writeData("ASK", "assets/ask_samples.csv", askData, new Pair<>("time (\\mus)", "Amplitude"));
+    }
+
     public static void testBandwidth() {
         byte[] inputData = readImages("assets/frames", 1);
 
@@ -194,6 +222,7 @@ public class Simulator {
     public static void main(String[] args) throws InterruptedException {
         while (simulate());
         testTransmissionRate();
+        graphMods();
         testBandwidth();
     }
 }

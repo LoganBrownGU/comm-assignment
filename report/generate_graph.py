@@ -20,16 +20,16 @@ for i in range(1, len(sys.argv)):
             data_set[0].append(float(line.split(",")[0]))
             data_set[1].append(float(line.split(",")[1]))
 
-plt.figure(figsize=(16, 9), dpi=150)
+plt.figure(figsize=(16, 5.5), dpi=150)
 for data_set in data:
     plt.plot(data_set[0], data_set[1])
 
 label_size = 18
 plt.xlabel(axis_labels[0], fontsize=label_size)
 plt.ylabel(axis_labels[1], fontsize=label_size)
-plt.yticks(np.arange(0, 0.325, 0.025))
-plt.xticks(np.arange(5, 21, 1))
+# plt.yticks(np.arange(0, 0.325, 0.025))
+# plt.xticks(np.arange(5, 21, 1))
 plt.grid(True)
 plt.legend(legends)
 #plt.show()
-plt.savefig("figures/bandwidth.png")
+plt.savefig("figures/modulation.png")
