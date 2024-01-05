@@ -122,10 +122,11 @@ public class Simulator {
     }
 
     private static float findBER(Modulator modulator, byte[] inputData) {
-        float timeStep = 0.01f / modulator.getModulationFrequency();
+        float timeStep = 0.1f / modulator.getCarrierFrequency();
 
         float[] samples = modulator.calculate(inputData, timeStep);
         Demodulator demodulator = ModulatorFactory.getDemodulator(modulator, timeStep);
+        assert demodulator != null;
         demodulator.initialCalculate(samples);
         for (int j = 0; j < samples.length; j++) demodulator.next(0);
 
@@ -153,7 +154,6 @@ public class Simulator {
     }
 
     private static void graphMods() {
-        byte[] data = {(byte) 0xFA, (byte) 0x50, (byte) 0xf4};
         int samplesToGraph = 4000;
         Pair<Float, Float>[] qamData = new Pair[samplesToGraph], askData = new Pair[samplesToGraph];
 
@@ -162,9 +162,11 @@ public class Simulator {
         ASKModulator askModulator = new ASKModulator(qamModulator.getCarrierFrequency(), qamModulator.getModulationFrequency(), qamModulator.getCarrierAmplitude(), 0.5f);
         float timeStep = 0.01f / qamModulator.getCarrierFrequency();
 
-        float[] samples = qamModulator.calculate(data, timeStep);
         float snr = 24;
         Random rd = new Random();
+
+        byte[] data = {(byte) 0xFA, (byte) 0x50, (byte) 0xf4};
+        float[] samples = qamModulator.calculate(data, timeStep);
         float noiseRMS = qamModulator.getRMS() / (float) Math.pow(10, (double) snr / 20);
         for (int i = 0; i < samplesToGraph; i++)
             qamData[i] = new Pair<>(i * timeStep * 1_000_000, (float) (samples[i] + rd.nextGaussian() * noiseRMS));
